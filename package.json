@@ -17,6 +17,7 @@
     "db:generate": "pnpm --filter @base/db generate",
     "db:migrate": "pnpm --filter @base/db migrate",
     "db:seed": "pnpm --filter @base/db seed",
+    "db:seed:demo": "pnpm --filter @base/db seed:demo",
     "db:studio": "pnpm --filter @base/db studio",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -11,6 +11,7 @@
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
     "seed": "tsx seeds/index.ts",
+    "seed:demo": "tsx seeds/demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
