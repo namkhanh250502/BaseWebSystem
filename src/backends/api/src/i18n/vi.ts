@@ -12,6 +12,7 @@ export const vi = {
     payloadTooLarge: 'Dữ liệu gửi lên quá lớn',
     tooManyRequests: 'Bạn thao tác quá nhanh, vui lòng thử lại sau {{seconds}} giây',
     internal: 'Lỗi hệ thống, vui lòng thử lại sau',
+    serviceUnavailable: 'Dịch vụ tạm thời không khả dụng',
   },
   validation: {
     password: { needDigit: 'Mật khẩu phải chứa ít nhất 1 chữ số' },
@@ -20,6 +21,28 @@ export const vi = {
     users: {
       analyticsInvalidRange: 'Ngày bắt đầu phải trước ngày kết thúc',
       analyticsRangeTooLong: 'Khoảng thời gian quá dài so với độ mịn đã chọn',
+    },
+    commerce: {
+      invalidMoney: 'Số tiền không hợp lệ (tối đa 2 chữ số thập phân)',
+      invalidQuantity: 'Số lượng không hợp lệ (tối đa 3 chữ số thập phân)',
+      quantityPositive: 'Số lượng phải lớn hơn 0',
+      quantityNonZero: 'Số lượng thay đổi phải khác 0',
+    },
+    products: {
+      skuFormat: 'SKU chỉ gồm chữ, số và các ký tự . _ -',
+    },
+    productImages: {
+      invalidType: 'Chỉ hỗ trợ ảnh JPEG, PNG, WebP',
+    },
+    inventory: {
+      noteRequired: 'Lý do "Khác" cần ghi chú',
+      countedRequired: 'Kiểm kê cần nhập số đếm thực tế',
+      changeRequired: 'Cần nhập số lượng thay đổi',
+      duplicateProduct: 'Mỗi sản phẩm chỉ xuất hiện một lần trong phiếu',
+    },
+    reports: {
+      invalidRange: 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc',
+      rangeTooLarge: 'Khoảng ngày tối đa 366 ngày',
     },
   },
   auth: {
@@ -249,5 +272,67 @@ export const vi = {
       expiry: 'Link có hiệu lực trong {{minutes}} phút.',
       ignore: 'Nếu bạn không yêu cầu, hãy bỏ qua email này.',
     },
+  },
+  categories: {
+    notFound: 'Không tìm thấy danh mục',
+    nameExists: 'Danh mục "{{name}}" đã tồn tại',
+    inUse: 'Danh mục đang có sản phẩm, hãy chuyển sản phẩm sang danh mục khác hoặc ngừng sử dụng',
+    inactive: 'Danh mục đã ngừng sử dụng',
+  },
+  products: {
+    notFound: 'Không tìm thấy sản phẩm',
+    skuExists: 'SKU "{{sku}}" đã tồn tại',
+    hasTransactions: 'Sản phẩm đã phát sinh giao dịch, chỉ có thể ngừng kinh doanh',
+    inactive: 'Sản phẩm {{sku}} đã ngừng kinh doanh',
+    decimalQuantityLocked: 'Tồn kho hiện có số lẻ, không thể tắt cho phép số lượng lẻ',
+  },
+  productImages: {
+    notFound: 'Không tìm thấy ảnh',
+    tooLarge: 'Ảnh vượt quá {{maxMb}} MB',
+    limitReached: 'Mỗi sản phẩm tối đa {{limit}} ảnh',
+    notUploaded: 'Chưa tải ảnh lên hoặc tải lên chưa hoàn tất',
+    contentMismatch: 'Nội dung file không phải ảnh JPEG, PNG hoặc WebP hợp lệ',
+    expired: 'Phiên tải ảnh đã hết hạn, vui lòng chọn lại ảnh',
+    notPending: 'Ảnh này đã được xử lý',
+    orderMismatch: 'Danh sách thứ tự ảnh không khớp với ảnh hiện có',
+  },
+  suppliers: {
+    notFound: 'Không tìm thấy nhà cung cấp',
+    inUse: 'Nhà cung cấp đã có phiếu nhập, chỉ có thể ngừng hợp tác',
+    inactive: 'Nhà cung cấp đã ngừng hợp tác',
+  },
+  purchases: {
+    notFound: 'Không tìm thấy phiếu nhập',
+    notDraft: 'Chỉ phiếu nháp mới được sửa hoặc huỷ',
+    alreadyProcessed: 'Phiếu nhập đã được xử lý trước đó',
+    stale: 'Phiếu nhập đã bị thay đổi bởi người khác, vui lòng tải lại',
+  },
+  sales: {
+    notFound: 'Không tìm thấy đơn bán',
+    notDraft: 'Chỉ đơn nháp mới được sửa',
+    alreadyProcessed: 'Đơn bán đã được xử lý trước đó',
+    stale: 'Đơn bán đã bị thay đổi bởi người khác, vui lòng tải lại',
+    insufficientStock: 'Sản phẩm {{sku}} không đủ hàng: cần {{requested}}, còn {{available}}',
+    priceOverrideForbidden: 'Bạn không có quyền bán khác giá niêm yết',
+    notConfirmed: 'Đơn chưa được chốt',
+    alreadyPaid: 'Đơn đã được thanh toán',
+    alreadyCancelled: 'Đơn đã bị huỷ',
+    cancelForbidden: 'Bạn không có quyền huỷ đơn đã chốt',
+  },
+  inventory: {
+    negativeStock: 'Sản phẩm {{sku}} không đủ tồn: cần giảm {{requested}}, còn {{available}}',
+    decimalNotAllowed: 'Sản phẩm {{sku}} chỉ nhận số lượng nguyên',
+    noChange: 'Số đếm thực tế bằng tồn hiện tại, không có gì để điều chỉnh',
+    adjustmentNotFound: 'Không tìm thấy phiếu điều chỉnh',
+  },
+  documents: {
+    discountExceedsAmount: 'Chiết khấu vượt quá tổng tiền',
+    lineDiscountExceedsAmount: 'Chiết khấu dòng {{line}} vượt quá thành tiền',
+  },
+  reports: {
+    rangeTooLarge: 'Khoảng ngày tối đa {{days}} ngày',
+  },
+  storage: {
+    unavailable: 'Kho lưu trữ ảnh chưa được cấu hình hoặc đang không khả dụng',
   },
 } satisfies Messages;

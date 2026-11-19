@@ -5,6 +5,7 @@ import { CoreModule } from './core/core.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { FilesModule } from './files/files.module';
 import { HealthModule } from './health/health.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     DashboardModule,
     FilesModule,
     HealthModule,
+    InventoryModule,
   ],
 })
 export class AppModule {}

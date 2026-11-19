@@ -33,8 +33,16 @@ export const forbidden = (key = 'errors.forbidden', params?: TranslateParams) =>
 export const notFound = (key = 'errors.notFound', params?: TranslateParams) =>
   new AppError(404, ERROR_CODES.NOT_FOUND, key, params);
 
-export const conflict = (key = 'errors.conflict', params?: TranslateParams) =>
-  new AppError(409, ERROR_CODES.CONFLICT, key, params);
+/** `details`: chi tiết có cấu trúc (vd. danh sách sản phẩm thiếu hàng) để frontend gắn lỗi đúng dòng */
+export const conflict = (key = 'errors.conflict', params?: TranslateParams, details?: unknown) =>
+  new AppError(409, ERROR_CODES.CONFLICT, key, params, details);
+
+/** Dữ liệu đúng định dạng nhưng sai quy tắc nghiệp vụ (422 với key riêng, khác errors.validation) */
+export const unprocessable = (key: string, params?: TranslateParams, details?: unknown) =>
+  new AppError(422, ERROR_CODES.VALIDATION_ERROR, key, params, details);
+
+export const serviceUnavailable = (key = 'errors.serviceUnavailable', params?: TranslateParams) =>
+  new AppError(503, ERROR_CODES.SERVICE_UNAVAILABLE, key, params);
 
 export const payloadTooLarge = (key = 'errors.payloadTooLarge', params?: TranslateParams) =>
   new AppError(413, ERROR_CODES.PAYLOAD_TOO_LARGE, key, params);

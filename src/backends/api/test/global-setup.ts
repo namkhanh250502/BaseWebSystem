@@ -2,6 +2,7 @@ import path from 'node:path';
 import {
   applyPermissionSync,
   createDb,
+  ensureBusinessRoles,
   permissions,
   rolePermissions,
   roles,
@@ -47,6 +48,7 @@ export default async function setup() {
       .insert(rolePermissions)
       .values(all.map((p) => ({ roleId: adminRole!.id, permissionId: p.id })))
       .onConflictDoNothing();
+    await ensureBusinessRoles(db);
     await db
       .insert(settings)
       .values(SETTING_DEFINITIONS.map((d) => ({ name: d.name, value: d.defaultValue })))

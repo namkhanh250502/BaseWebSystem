@@ -1,3 +1,4 @@
+export * from './business-roles';
 export * from './client';
 export * from './permissions-sync';
 export * from './schema';
@@ -15,7 +16,9 @@ export {
   inArray,
   isNotNull,
   isNull,
+  like,
   lt,
+  lte,
   ne,
   notInArray,
   or,

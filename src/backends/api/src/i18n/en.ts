@@ -16,6 +16,7 @@ export const en: Catalog<typeof vi> & Messages = {
     payloadTooLarge: 'Payload too large',
     tooManyRequests: 'Too many attempts, please try again in {{seconds}} seconds',
     internal: 'Something went wrong, please try again later',
+    serviceUnavailable: 'Service temporarily unavailable',
   },
   validation: {
     password: { needDigit: 'Password must contain at least one digit' },
@@ -24,6 +25,28 @@ export const en: Catalog<typeof vi> & Messages = {
     users: {
       analyticsInvalidRange: 'Start date must be before end date',
       analyticsRangeTooLong: 'The date range is too long for the selected granularity',
+    },
+    commerce: {
+      invalidMoney: 'Invalid amount (at most 2 decimal places)',
+      invalidQuantity: 'Invalid quantity (at most 3 decimal places)',
+      quantityPositive: 'Quantity must be greater than 0',
+      quantityNonZero: 'Quantity change must not be 0',
+    },
+    products: {
+      skuFormat: 'SKU may only contain letters, digits and . _ -',
+    },
+    productImages: {
+      invalidType: 'Only JPEG, PNG and WebP images are supported',
+    },
+    inventory: {
+      noteRequired: 'Reason "Other" requires a note',
+      countedRequired: 'Stocktake requires the counted quantity',
+      changeRequired: 'Quantity change is required',
+      duplicateProduct: 'Each product may appear only once',
+    },
+    reports: {
+      invalidRange: 'Start date must be on or before end date',
+      rangeTooLarge: 'The date range can be at most 366 days',
     },
   },
   auth: {
@@ -88,7 +111,8 @@ export const en: Catalog<typeof vi> & Messages = {
     nameExists: 'Role name already exists',
     inUse: 'Role is assigned to {{count}} user(s) and cannot be deleted',
     systemRole: 'System roles cannot be deleted, renamed or deactivated',
-    adminPermissionMissing: 'The admin.access permission is not in the database yet, sync permissions first',
+    adminPermissionMissing:
+      'The admin.access permission is not in the database yet, sync permissions first',
     adminAccessForbidden: 'You need the assign-permissions right to change admin access of a role',
   },
   settings: {
@@ -248,5 +272,70 @@ export const en: Catalog<typeof vi> & Messages = {
       expiry: 'This link is valid for {{minutes}} minutes.',
       ignore: 'If you did not request this, you can ignore this email.',
     },
+  },
+  categories: {
+    notFound: 'Category not found',
+    nameExists: 'Category "{{name}}" already exists',
+    inUse: 'This category still has products; move them to another category or deactivate it',
+    inactive: 'This category is inactive',
+  },
+  products: {
+    notFound: 'Product not found',
+    skuExists: 'SKU "{{sku}}" already exists',
+    hasTransactions: 'This product has transactions and can only be deactivated',
+    inactive: 'Product {{sku}} is inactive',
+    decimalQuantityLocked:
+      'Current stock has a fractional quantity; decimal quantities cannot be disabled',
+  },
+  productImages: {
+    notFound: 'Image not found',
+    tooLarge: 'Image exceeds {{maxMb}} MB',
+    limitReached: 'Each product can have at most {{limit}} images',
+    notUploaded: 'The image has not been uploaded or the upload is incomplete',
+    contentMismatch: 'The file is not a valid JPEG, PNG or WebP image',
+    expired: 'The upload session has expired, please choose the image again',
+    notPending: 'This image has already been processed',
+    orderMismatch: 'The image order does not match the current images',
+  },
+  suppliers: {
+    notFound: 'Supplier not found',
+    inUse: 'This supplier has purchase receipts and can only be deactivated',
+    inactive: 'This supplier is inactive',
+  },
+  purchases: {
+    notFound: 'Purchase receipt not found',
+    notDraft: 'Only draft receipts can be edited or cancelled',
+    alreadyProcessed: 'This purchase receipt has already been processed',
+    stale: 'This receipt was changed by someone else, please reload',
+  },
+  sales: {
+    notFound: 'Sales order not found',
+    notDraft: 'Only draft orders can be edited',
+    alreadyProcessed: 'This order has already been processed',
+    stale: 'This order was changed by someone else, please reload',
+    insufficientStock:
+      'Insufficient stock for {{sku}}: requested {{requested}}, available {{available}}',
+    priceOverrideForbidden: 'You are not allowed to sell at a price different from the list price',
+    notConfirmed: 'The order has not been confirmed',
+    alreadyPaid: 'The order has already been paid',
+    alreadyCancelled: 'The order has already been cancelled',
+    cancelForbidden: 'You are not allowed to cancel confirmed orders',
+  },
+  inventory: {
+    negativeStock:
+      'Insufficient stock for {{sku}}: decrease {{requested}}, available {{available}}',
+    decimalNotAllowed: 'Product {{sku}} only accepts whole quantities',
+    noChange: 'Counted quantity equals current stock, nothing to adjust',
+    adjustmentNotFound: 'Stock adjustment not found',
+  },
+  documents: {
+    discountExceedsAmount: 'Discount exceeds the total amount',
+    lineDiscountExceedsAmount: 'Discount on line {{line}} exceeds the line amount',
+  },
+  reports: {
+    rangeTooLarge: 'The date range can be at most {{days}} days',
+  },
+  storage: {
+    unavailable: 'Image storage is not configured or currently unavailable',
   },
 };

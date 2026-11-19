@@ -71,22 +71,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.3 — Hằng số, enum, schema zod
 
-- [ ] T007 [P] Tạo enum dùng chung (`RECORD_STATUSES`, `PRODUCT_STATUSES`, `DOCUMENT_STATUSES`, `PAYMENT_METHODS`, `PAYMENT_STATUSES`, `ADJUSTMENT_REASONS`, `MOVEMENT_TYPES`, `MOVEMENT_REF_TYPES`, `IMAGE_STATUSES`, `IMAGE_MIME_TYPES`, `STOCK_STATES`) + schema zod tiền/số lượng dạng chuỗi (`moneySchema`, `quantitySchema`, `dateOnlySchema`) trong `src/packages/shared/src/constants/commerce.ts`, export ở `src/packages/shared/src/index.ts`
+- [x] T007 [P] Tạo enum dùng chung (`RECORD_STATUSES`, `PRODUCT_STATUSES`, `DOCUMENT_STATUSES`, `PAYMENT_METHODS`, `PAYMENT_STATUSES`, `ADJUSTMENT_REASONS`, `MOVEMENT_TYPES`, `MOVEMENT_REF_TYPES`, `IMAGE_STATUSES`, `IMAGE_MIME_TYPES`, `STOCK_STATES`) + schema zod tiền/số lượng dạng chuỗi (`moneySchema`, `quantitySchema`, `dateOnlySchema`) trong `src/packages/shared/src/constants/commerce.ts`, export ở `src/packages/shared/src/index.ts`
   - Deps: —
   - Result: Giá trị enum đúng `data-model.md` § Enum.
   - AC: Danh sách dạng `as const`; `moneySchema` chấp nhận tối đa 2 chữ số lẻ, ≥ 0; `quantitySchema` tối đa 3 chữ số lẻ, > 0.
   - Test: Typecheck; unit trong T002 test file không cần.
-- [ ] T008 [P] Tạo schema zod + DTO theo `contracts/rest-api.md` cho danh mục và sản phẩm trong `src/packages/shared/src/schemas/category.ts`, `src/packages/shared/src/schemas/product.ts` (gồm ảnh: upload request, order)
+- [x] T008 [P] Tạo schema zod + DTO theo `contracts/rest-api.md` cho danh mục và sản phẩm trong `src/packages/shared/src/schemas/category.ts`, `src/packages/shared/src/schemas/product.ts` (gồm ảnh: upload request, order)
   - Deps: T007
   - Result: `listCategoriesQuerySchema`, `createCategorySchema`, `updateCategorySchema`, `CategoryDto`; `listProductsQuerySchema`, `createProductSchema`, `updateProductSchema`, `ProductDto`, `ProductDetailDto`, `ProductImageDto`, `imageUploadRequestSchema`, `imageOrderSchema`.
   - AC: Độ dài/trường bắt buộc khớp `data-model.md` `categories.name`, `products.sku`, `products.name`, `products.unit`, `products.selling_price`, `products.min_stock`, `product_images.mime_type`, `product_images.size_bytes`; SKU thêm regex `[A-Za-z0-9._-]` (thu hẹp).
   - Test: Typecheck.
-- [ ] T009 [P] Tạo schema zod + DTO nhà cung cấp, phiếu nhập trong `src/packages/shared/src/schemas/supplier.ts`, `src/packages/shared/src/schemas/purchase.ts`
+- [x] T009 [P] Tạo schema zod + DTO nhà cung cấp, phiếu nhập trong `src/packages/shared/src/schemas/supplier.ts`, `src/packages/shared/src/schemas/purchase.ts`
   - Deps: T007
   - Result: Theo `contracts/rest-api.md` § Nhà cung cấp, § Nhập hàng (items 1–200, `version`).
   - AC: Khớp `data-model.md` `suppliers.*`, `purchase_receipt_items.quantity`, `purchase_receipt_items.unit_price`, `purchase_receipt_items.discount_amount`, `purchase_receipts.discount_amount`.
   - Test: Typecheck.
-- [ ] T010 [P] Tạo schema zod + DTO đơn bán, tồn kho, báo cáo trong `src/packages/shared/src/schemas/sales.ts`, `src/packages/shared/src/schemas/inventory.ts`, `src/packages/shared/src/schemas/report.ts`
+- [x] T010 [P] Tạo schema zod + DTO đơn bán, tồn kho, báo cáo trong `src/packages/shared/src/schemas/sales.ts`, `src/packages/shared/src/schemas/inventory.ts`, `src/packages/shared/src/schemas/report.ts`
   - Deps: T007
   - Result: Theo `contracts/rest-api.md` § Bán hàng, § Tồn kho, § Dashboard & báo cáo (khoảng ngày ≤ 366 → refine `reports.rangeTooLarge`).
   - AC: Khớp `data-model.md` `sales_orders.client_request_id`, `sales_orders.customer_name`, `sales_orders.customer_phone`, `sales_order_items.quantity`, `inventory_adjustments.reason`, `inventory_adjustments.note` (bắt buộc khi `OTHER` — refine), `inventory_adjustment_items.counted_quantity` (chỉ với `STOCKTAKE` — refine).
@@ -94,27 +94,27 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.4 — Schema DB & migration
 
-- [ ] T011 [P] Tạo bảng `categories`, `products`, `product_images` trong `src/packages/db/src/schema/categories.ts`, `src/packages/db/src/schema/products.ts` theo `data-model.md` (unique `lower(name)`/`lower(sku)`, partial unique ảnh chính, CHECK giá ≥ 0)
+- [x] T011 [P] Tạo bảng `categories`, `products`, `product_images` trong `src/packages/db/src/schema/categories.ts`, `src/packages/db/src/schema/products.ts` theo `data-model.md` (unique `lower(name)`/`lower(sku)`, partial unique ảnh chính, CHECK giá ≥ 0)
   - Deps: T007
   - Result: Kiểu, FK, index đúng `data-model.md` § categories, § products, § product_images.
   - AC: Dùng `...timestamps`, `uuid().primaryKey().defaultRandom()`, `pgEnum` lấy giá trị từ `@base/shared`.
   - Test: Kiểm qua T015.
-- [ ] T012 [P] Tạo bảng `suppliers`, `purchase_receipts`, `purchase_receipt_items` trong `src/packages/db/src/schema/suppliers.ts`, `src/packages/db/src/schema/purchases.ts`
+- [x] T012 [P] Tạo bảng `suppliers`, `purchase_receipts`, `purchase_receipt_items` trong `src/packages/db/src/schema/suppliers.ts`, `src/packages/db/src/schema/purchases.ts`
   - Deps: T007, T011
   - Result: Đúng `data-model.md` § suppliers, § purchase_receipts (gồm `version`, CHECK confirmed_at), § purchase_receipt_items.
   - AC: `code` UNIQUE; FK `RESTRICT` tới products/suppliers.
   - Test: Kiểm qua T015.
-- [ ] T013 [P] Tạo bảng `sales_orders`, `sales_order_items` trong `src/packages/db/src/schema/sales.ts`
+- [x] T013 [P] Tạo bảng `sales_orders`, `sales_order_items` trong `src/packages/db/src/schema/sales.ts`
   - Deps: T007, T011
   - Result: Đúng `data-model.md` § sales_orders (gồm `client_request_id` UNIQUE, CHECK paid_at), § sales_order_items (snapshot, `unit_cost`, `net_amount`).
   - AC: Index `(status, confirmed_at)`, `(created_by, created_at)`.
   - Test: Kiểm qua T015.
-- [ ] T014 [P] Tạo bảng `inventory_balances` (CHECK `quantity >= 0`), `inventory_movements`, `inventory_adjustments`, `inventory_adjustment_items`, `document_sequences` trong `src/packages/db/src/schema/inventory.ts`, `src/packages/db/src/schema/document-sequences.ts`
+- [x] T014 [P] Tạo bảng `inventory_balances` (CHECK `quantity >= 0`), `inventory_movements`, `inventory_adjustments`, `inventory_adjustment_items`, `document_sequences` trong `src/packages/db/src/schema/inventory.ts`, `src/packages/db/src/schema/document-sequences.ts`
   - Deps: T007, T011
   - Result: Đúng `data-model.md` § inventory_balances, § inventory_movements, § inventory_adjustments, § document_sequences.
   - AC: Sổ cái có index `(product_id, created_at)`, `(ref_type, ref_id)`.
   - Test: Kiểm qua T015.
-- [ ] T015 Export các schema mới ở `src/packages/db/src/schema/index.ts`; chạy `pnpm db:generate` sinh migration trong `src/packages/db/migrations/`; rà SQL; `pnpm db:migrate`
+- [x] T015 Export các schema mới ở `src/packages/db/src/schema/index.ts`; chạy `pnpm db:generate` sinh migration trong `src/packages/db/migrations/`; rà SQL; `pnpm db:migrate`
   - Deps: T011–T014
   - Result: 1 migration chỉ **thêm** enum/bảng/index, không đụng bảng cũ.
   - AC: SQL không có `DROP`/`ALTER` bảng hiện có; migrate thành công trên DB dev.
@@ -122,22 +122,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.5 — Quyền & vai trò
 
-- [ ] T016 Thêm 36 quyền trong `contracts/permissions.md` vào `PERMISSION_DEFINITIONS`, `SYSTEM_ROLES.MANAGER/STAFF`, và `DEFAULT_ROLE_PERMISSIONS` trong `src/packages/shared/src/constants/permissions.ts`
+- [x] T016 Thêm 36 quyền trong `contracts/permissions.md` vào `PERMISSION_DEFINITIONS`, `SYSTEM_ROLES.MANAGER/STAFF`, và `DEFAULT_ROLE_PERMISSIONS` trong `src/packages/shared/src/constants/permissions.ts`
   - Deps: —
   - Result: Key mới gõ được kiểu `PermissionKey`; loại `CLIENT` cho 4 quyền năng lực.
   - AC: Quyền hiện có không đổi thứ tự/giá trị.
   - Test: Typecheck.
-- [ ] T017 [P] Thêm nhãn `permissions.modules.{categories,products,suppliers,purchases,sales,inventory,reports}` và `permissions.items.<key>` (vi + en) trong `src/frontends/admin/src/locales/vi.ts`, `src/frontends/admin/src/locales/en.ts`
+- [x] T017 [P] Thêm nhãn `permissions.modules.{categories,products,suppliers,purchases,sales,inventory,reports}` và `permissions.items.<key>` (vi + en) trong `src/frontends/admin/src/locales/vi.ts`, `src/frontends/admin/src/locales/en.ts`
   - Deps: T016
   - Result: Trang Quyền / drawer phân quyền hiện tên đúng.
   - AC: Đủ key ở cả 2 ngôn ngữ.
   - Test: Typecheck admin.
-- [ ] T018 Seed tạo vai trò `Manager`, `Staff` (chỉ gán quyền mặc định khi **vừa tạo**, cảnh báo nếu tên đã tồn tại) trong `src/packages/db/seeds/index.ts`
+- [x] T018 Seed tạo vai trò `Manager`, `Staff` (chỉ gán quyền mặc định khi **vừa tạo**, cảnh báo nếu tên đã tồn tại) trong `src/packages/db/seeds/index.ts`
   - Deps: T015, T016
   - Result: `pnpm db:seed` idempotent; Administrator nhận quyền mới như cũ (research R9).
   - AC: Chạy seed 2 lần không lỗi; sửa quyền của Manager rồi seed lại → không bị ghi đè; role `User` không đổi.
   - Test: e2e `src/backends/api/test/commerce.permissions.test.ts` (khởi tạo): Manager/Staff tồn tại với đúng bộ quyền sau global-setup.
-- [ ] T019 [P] Mở rộng `createUser` nhận `role?: 'Administrator' | 'Manager' | 'Staff' | 'User'` trong `src/backends/api/test/helpers/fixtures.ts` và `signedInClient` tương ứng trong `src/backends/api/test/helpers/flows.ts`
+- [x] T019 [P] Mở rộng `createUser` nhận `role?: 'Administrator' | 'Manager' | 'Staff' | 'User'` trong `src/backends/api/test/helpers/fixtures.ts` và `signedInClient` tương ứng trong `src/backends/api/test/helpers/flows.ts`
   - Deps: T018
   - Result: Test tạo user theo vai trò.
   - AC: Tuỳ chọn `admin` cũ vẫn hoạt động (không phá test hiện có).
@@ -145,12 +145,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.6 — Lõi tồn kho (chặn Phase 5–8)
 
-- [ ] T020 Tạo `InventoryModule` khung + `DocumentCodeService.next(tx, prefix, date)` (upsert `document_sequences`, mã `PN|DH|DC-YYYYMMDD-NNNN`) trong `src/backends/api/src/inventory/inventory.module.ts`, `src/backends/api/src/inventory/document-code.service.ts`; đăng ký ở `src/backends/api/src/app.module.ts`
+- [x] T020 Tạo `InventoryModule` khung + `DocumentCodeService.next(tx, prefix, date)` (upsert `document_sequences`, mã `PN|DH|DC-YYYYMMDD-NNNN`) trong `src/backends/api/src/inventory/inventory.module.ts`, `src/backends/api/src/inventory/document-code.service.ts`; đăng ký ở `src/backends/api/src/app.module.ts`
   - Deps: T015
   - Result: Sinh mã duy nhất theo ngày giờ VN (research R14, `data-model.md` `document_sequences.*`).
   - AC: 20 lần gọi đồng thời cùng prefix/ngày → 20 mã khác nhau liên tiếp.
   - Test: e2e/unit `src/backends/api/test/inventory.core.test.ts` (gọi service qua `app.get`).
-- [ ] T021 Tạo `InventoryService` với `initBalance(tx, productId)`, `apply(tx, movements[], ctx)` (gộp theo sản phẩm, `SELECT … ORDER BY product_id FOR UPDATE`, kiểm tra đủ hàng / số lượng lẻ, cập nhật `quantity`/`avg_cost` bằng SQL numeric, insert `inventory_movements`, trả `unitCost` theo sản phẩm), `getBalances(productIds)` trong `src/backends/api/src/inventory/inventory.service.ts`; key lỗi `inventory.insufficientStock` (+details), `inventory.decimalNotAllowed`, `inventory.negativeStock` ở `src/backends/api/src/i18n/{vi,en}.ts`
+- [x] T021 Tạo `InventoryService` với `initBalance(tx, productId)`, `apply(tx, movements[], ctx)` (gộp theo sản phẩm, `SELECT … ORDER BY product_id FOR UPDATE`, kiểm tra đủ hàng / số lượng lẻ, cập nhật `quantity`/`avg_cost` bằng SQL numeric, insert `inventory_movements`, trả `unitCost` theo sản phẩm), `getBalances(productIds)` trong `src/backends/api/src/inventory/inventory.service.ts`; key lỗi `inventory.insufficientStock` (+details), `inventory.decimalNotAllowed`, `inventory.negativeStock` ở `src/backends/api/src/i18n/{vi,en}.ts`
   - Deps: T002, T003, T020
   - Result: Điểm ghi tồn duy nhất; công thức giá vốn theo research R5; ràng buộc `data-model.md` `inventory_balances.quantity`, `inventory_movements.quantity_after`.
   - AC: Không có code nào khác `UPDATE inventory_balances`; thiếu hàng → không ghi gì.

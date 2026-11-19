@@ -57,6 +57,57 @@ export const PERMISSION_DEFINITIONS = [
   { key: 'settings.import', module: 'settings', ...api('POST', '/settings/import') },
 
   { key: 'notifications.send', module: 'notifications', ...api('POST', '/notifications') },
+
+  // ----- Bán hàng & tồn kho (specs/001-sales-inventory-mvp/contracts/permissions.md) -----
+  // Loại CLIENT ở đây là "quyền năng lực" (không gắn 1 API): backend vẫn kiểm tra trong service
+  // để ẩn trường giá vốn / giới hạn phạm vi dữ liệu.
+  { key: 'dashboard.salesSummary', module: 'dashboard', ...api('GET', '/dashboard/sales-summary') },
+
+  { key: 'categories.list', module: 'categories', ...api('GET', '/categories') },
+  { key: 'categories.create', module: 'categories', ...api('POST', '/categories') },
+  { key: 'categories.update', module: 'categories', ...api('PATCH', '/categories/:id') },
+  { key: 'categories.delete', module: 'categories', ...api('DELETE', '/categories/:id') },
+
+  { key: 'products.list', module: 'products', ...api('GET', '/products') },
+  { key: 'products.create', module: 'products', ...api('POST', '/products') },
+  { key: 'products.update', module: 'products', ...api('PATCH', '/products/:id') },
+  { key: 'products.delete', module: 'products', ...api('DELETE', '/products/:id') },
+  { key: 'products.viewCost', module: 'products', type: 'CLIENT', method: null, apiPath: null },
+
+  { key: 'suppliers.list', module: 'suppliers', ...api('GET', '/suppliers') },
+  { key: 'suppliers.create', module: 'suppliers', ...api('POST', '/suppliers') },
+  { key: 'suppliers.update', module: 'suppliers', ...api('PATCH', '/suppliers/:id') },
+  { key: 'suppliers.delete', module: 'suppliers', ...api('DELETE', '/suppliers/:id') },
+
+  { key: 'purchases.list', module: 'purchases', ...api('GET', '/purchases') },
+  { key: 'purchases.create', module: 'purchases', ...api('POST', '/purchases') },
+  { key: 'purchases.update', module: 'purchases', ...api('PATCH', '/purchases/:id') },
+  { key: 'purchases.confirm', module: 'purchases', ...api('POST', '/purchases/:id/confirm') },
+  { key: 'purchases.cancel', module: 'purchases', ...api('POST', '/purchases/:id/cancel') },
+
+  { key: 'sales.list', module: 'sales', ...api('GET', '/sales-orders') },
+  { key: 'sales.create', module: 'sales', ...api('POST', '/sales-orders') },
+  { key: 'sales.update', module: 'sales', ...api('PATCH', '/sales-orders/:id') },
+  { key: 'sales.confirm', module: 'sales', ...api('POST', '/sales-orders/:id/confirm') },
+  { key: 'sales.pay', module: 'sales', ...api('POST', '/sales-orders/:id/pay') },
+  { key: 'sales.cancel', module: 'sales', ...api('POST', '/sales-orders/:id/cancel') },
+  { key: 'sales.viewAll', module: 'sales', type: 'CLIENT', method: null, apiPath: null },
+  { key: 'sales.overridePrice', module: 'sales', type: 'CLIENT', method: null, apiPath: null },
+
+  { key: 'inventory.list', module: 'inventory', ...api('GET', '/inventory') },
+  { key: 'inventory.movements', module: 'inventory', ...api('GET', '/inventory/movements') },
+  {
+    key: 'inventory.adjustments.list',
+    module: 'inventory',
+    ...api('GET', '/inventory/adjustments'),
+  },
+  { key: 'inventory.adjust', module: 'inventory', ...api('POST', '/inventory/adjustments') },
+  { key: 'inventory.viewValue', module: 'inventory', type: 'CLIENT', method: null, apiPath: null },
+
+  { key: 'reports.sales', module: 'reports', ...api('GET', '/reports/sales/daily') },
+  { key: 'reports.purchases', module: 'reports', ...api('GET', '/reports/purchases') },
+  { key: 'reports.inventory', module: 'reports', ...api('GET', '/reports/inventory') },
+  { key: 'reports.profit', module: 'reports', ...api('GET', '/reports/profit') },
 ] as const satisfies readonly PermissionDefinition[];
 
 export type PermissionKey = (typeof PERMISSION_DEFINITIONS)[number]['key'];
@@ -81,4 +132,33 @@ export function getPermissionDefinition(key: string): PermissionDefinition | und
 export const SYSTEM_ROLES = {
   ADMINISTRATOR: 'Administrator',
   USER: 'User',
+  MANAGER: 'Manager',
+  STAFF: 'Staff',
 } as const;
+
+const STAFF_PERMISSIONS = [
+  'categories.list',
+  'products.list',
+  'sales.list',
+  'sales.create',
+  'sales.update',
+  'sales.confirm',
+  'sales.pay',
+  'inventory.list',
+  'inventory.movements',
+] as const satisfies readonly PermissionKey[];
+
+/**
+ * Bộ quyền mặc định của vai trò nghiệp vụ. Seed CHỈ gán khi tạo vai trò lần đầu, nên chỉnh
+ * quyền ở trang admin sau đó không bị seed ghi đè. Administrator luôn có mọi quyền.
+ */
+export const DEFAULT_ROLE_PERMISSIONS: Record<'Manager' | 'Staff', readonly PermissionKey[]> = {
+  Manager: [
+    'admin.access',
+    'dashboard.salesSummary',
+    ...PERMISSION_KEYS.filter((key) =>
+      /^(categories|products|suppliers|purchases|sales|inventory|reports)\./.test(key),
+    ),
+  ],
+  Staff: STAFF_PERMISSIONS,
+};

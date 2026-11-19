@@ -12,6 +12,8 @@ export interface CreateUserOptions {
   verified?: boolean;
   /** Gán role Administrator (có quyền admin.access) */
   admin?: boolean;
+  /** Gán role theo tên (ưu tiên hơn `admin`) */
+  role?: (typeof SYSTEM_ROLES)[keyof typeof SYSTEM_ROLES];
   superAdmin?: boolean;
   isActive?: boolean;
   lang?: 'vi' | 'en';
@@ -26,7 +28,8 @@ export function uniqueEmail(prefix = 'user'): string {
 export async function createUser(db: Database, options: CreateUserOptions = {}) {
   const email = (options.email ?? uniqueEmail()).toLowerCase();
   const password = options.password === undefined ? DEFAULT_PASSWORD : options.password;
-  const roleName = options.admin ? SYSTEM_ROLES.ADMINISTRATOR : SYSTEM_ROLES.USER;
+  const roleName =
+    options.role ?? (options.admin ? SYSTEM_ROLES.ADMINISTRATOR : SYSTEM_ROLES.USER);
   const [role] = await db.select({ id: roles.id }).from(roles).where(eq(roles.name, roleName));
   const [user] = await db
     .insert(users)

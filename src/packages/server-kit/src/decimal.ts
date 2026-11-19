@@ -110,6 +110,11 @@ export function sub(a: Decimal, b: Decimal): Decimal {
   return { units: x - y, scale };
 }
 
+/** −a */
+export function negate(value: Decimal): Decimal {
+  return { units: -value.units, scale: value.scale };
+}
+
 /** Tổng một danh sách; danh sách rỗng trả 0 với `scale` cho trước */
 export function sum(values: readonly Decimal[], scale = MONEY_SCALE): Decimal {
   return values.reduce<Decimal>((acc, v) => add(acc, v), { units: 0n, scale });

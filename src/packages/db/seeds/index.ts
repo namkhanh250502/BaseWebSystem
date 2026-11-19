@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { eq } from 'drizzle-orm';
 import {
   applyPermissionSync,
+  ensureBusinessRoles,
   createDb,
   permissions,
   rolePermissions,
@@ -18,7 +19,7 @@ config({ path: '../../backends/api/.env', quiet: true });
 /**
  * Seed idempotent (chạy nhiều lần không sao):
  * 1. Đồng bộ permission từ code
- * 2. Tạo role Administrator (toàn quyền) và User (mặc định khi đăng ký)
+ * 2. Tạo role Administrator (toàn quyền), User (mặc định khi đăng ký), Manager và Staff
  * 3. Tạo các setting mặc định còn thiếu
  * 4. Tạo tài khoản super admin
  */
@@ -56,6 +57,13 @@ async function main() {
         .insert(rolePermissions)
         .values(allPermissions.map((p) => ({ roleId: adminRole.id, permissionId: p.id })))
         .onConflictDoNothing();
+    }
+
+    // Vai trò nghiệp vụ bán hàng: chỉ gán quyền mặc định khi vừa tạo
+    const business = await ensureBusinessRoles(db);
+    if (business.created.length) console.log(`Role: đã tạo ${business.created.join(', ')}`);
+    if (business.existing.length) {
+      console.log(`Role ${business.existing.join(', ')} đã tồn tại, giữ nguyên quyền hiện có`);
     }
 
     const insertedSettings = await db
