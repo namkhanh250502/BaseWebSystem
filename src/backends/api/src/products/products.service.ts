@@ -135,6 +135,46 @@ export class ProductsService {
     if (category.status !== 'ACTIVE') throw unprocessable('categories.inactive');
   }
 
+  /**
+   * Nạp và kiểm tra sản phẩm cho dòng chứng từ: tồn tại, (tuỳ chọn) đang kinh doanh,
+   * số lượng nguyên với sản phẩm không cho số lẻ. Dùng chung cho nhập hàng và bán hàng.
+   */
+  async loadForDocument(
+    db: DbOrTx,
+    lines: { productId: string; quantity: string }[],
+    options: { requireActive: boolean },
+  ): Promise<Map<string, Product>> {
+    const ids = [...new Set(lines.map((l) => l.productId))];
+    const rows = await db.select().from(products).where(inArray(products.id, ids));
+    const byId = new Map(rows.map((p) => [p.id, p]));
+    const missing = ids.filter((id) => !byId.has(id));
+    if (missing.length) {
+      throw notFound('products.notFound', undefined);
+    }
+    const inactive = options.requireActive ? rows.filter((p) => p.status !== 'ACTIVE') : [];
+    if (inactive.length) {
+      throw unprocessable(
+        'products.inactive',
+        { sku: inactive[0]!.sku },
+        inactive.map((p) => ({ productId: p.id, sku: p.sku })),
+      );
+    }
+    const fractional = lines.filter(
+      (l) =>
+        !byId.get(l.productId)!.allowDecimalQuantity &&
+        !isInteger(decimal(l.quantity, QUANTITY_SCALE)),
+    );
+    if (fractional.length) {
+      const first = byId.get(fractional[0]!.productId)!;
+      throw unprocessable(
+        'inventory.decimalNotAllowed',
+        { sku: first.sku },
+        fractional.map((l) => ({ productId: l.productId, sku: byId.get(l.productId)!.sku })),
+      );
+    }
+    return byId;
+  }
+
   async list(query: ListQuery, viewer: ViewerContext) {
     const { page, pageSize, search, categoryId, status, stockState, sortBy, sortOrder } = query;
     const where = and(

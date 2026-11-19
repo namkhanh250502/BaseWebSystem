@@ -10,9 +10,11 @@ import { InventoryModule } from './inventory/inventory.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ProductsModule } from './products/products.module';
+import { PurchasesModule } from './purchases/purchases.module';
 import { RolesModule } from './roles/roles.module';
 import { SettingsModule } from './settings/settings.module';
 import { StorageModule } from './storage/storage.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -32,6 +34,8 @@ import { UsersModule } from './users/users.module';
     StorageModule,
     CategoriesModule,
     ProductsModule,
+    SuppliersModule,
+    PurchasesModule,
   ],
 })
 export class AppModule {}

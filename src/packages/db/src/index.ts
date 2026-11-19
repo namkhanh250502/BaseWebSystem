@@ -10,6 +10,7 @@ export {
   count,
   desc,
   eq,
+  exists,
   gt,
   gte,
   ilike,

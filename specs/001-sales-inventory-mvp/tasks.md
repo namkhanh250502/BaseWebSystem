@@ -240,12 +240,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ## Phase 4: Suppliers — US3 (P1, phần 1)
 
-- [ ] T032 [US3] Tạo `SuppliersModule` theo `contracts/rest-api.md` § Nhà cung cấp trong `src/backends/api/src/suppliers/`: CRUD, tìm tên/điện thoại/email, lọc trạng thái, chặn xoá khi có phiếu nhập; đăng ký `app.module.ts`; key lỗi `suppliers.*`
+- [x] T032 [US3] Tạo `SuppliersModule` theo `contracts/rest-api.md` § Nhà cung cấp trong `src/backends/api/src/suppliers/`: CRUD, tìm tên/điện thoại/email, lọc trạng thái, chặn xoá khi có phiếu nhập; đăng ký `app.module.ts`; key lỗi `suppliers.*`
   - Deps: T009, T015, T016
   - Result: Trường theo `data-model.md` `suppliers.*`.
   - AC: Xoá khi có phiếu → 409 `suppliers.inUse`; Staff → 403.
   - Test: `src/backends/api/test/suppliers.test.ts`: CRUD, tìm theo SĐT/email, 403 Staff, 422 email sai.
-- [ ] T033 [US3] `purchaseSummary` (số phiếu, tổng giá trị đã xác nhận, ngày nhập gần nhất) trong `GET /suppliers/:id` ở `src/backends/api/src/suppliers/suppliers.service.ts`
+- [x] T033 [US3] `purchaseSummary` (số phiếu, tổng giá trị đã xác nhận, ngày nhập gần nhất) trong `GET /suppliers/:id` ở `src/backends/api/src/suppliers/suppliers.service.ts`
   - Deps: T032, T036
   - Result: US3 #8.
   - AC: Chỉ tính phiếu `CONFIRMED`.
@@ -259,12 +259,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 5.1 — Phiếu nháp
 
-- [ ] T034 [US3] Hàm thuần tính tiền chứng từ (line amount, subtotal, total, phân bổ chiết khấu chứng từ, kiểm tra chiết khấu ≤ thành tiền) trong `src/backends/api/src/sales/pricing.ts` (dùng chung cho nhập và bán)
+- [x] T034 [US3] Hàm thuần tính tiền chứng từ (line amount, subtotal, total, phân bổ chiết khấu chứng từ, kiểm tra chiết khấu ≤ thành tiền) trong `src/backends/api/src/sales/pricing.ts` (dùng chung cho nhập và bán)
   - Deps: T002
   - Result: Quy tắc `data-model.md` § Quy tắc tính toán.
   - AC: Không dùng `number`; lỗi `documents.discountExceedsAmount` (thêm key i18n).
   - Test: Unit `src/backends/api/test/commerce.unit.test.ts`: phân bổ dư vào dòng cuối có thành tiền > 0, chiết khấu = thành tiền (0 hợp lệ), vượt → lỗi.
-- [ ] T035 [US3] Tạo `PurchasesModule`: `POST /purchases` (sinh mã, kiểm tra nhà cung cấp/sản phẩm ACTIVE, số lượng lẻ theo `products.allow_decimal_quantity`), `PATCH` (chỉ DRAFT, khoá lạc quan `purchase_receipts.version`, ghi lại toàn bộ dòng), `GET` list/detail (lọc `supplierId`, `status`, ngày, `productId`) trong `src/backends/api/src/purchases/`; đăng ký `app.module.ts`; key lỗi `purchases.*`
+- [x] T035 [US3] Tạo `PurchasesModule`: `POST /purchases` (sinh mã, kiểm tra nhà cung cấp/sản phẩm ACTIVE, số lượng lẻ theo `products.allow_decimal_quantity`), `PATCH` (chỉ DRAFT, khoá lạc quan `purchase_receipts.version`, ghi lại toàn bộ dòng), `GET` list/detail (lọc `supplierId`, `status`, ngày, `productId`) trong `src/backends/api/src/purchases/`; đăng ký `app.module.ts`; key lỗi `purchases.*`
   - Deps: T020, T023, T032, T034
   - Result: Theo `contracts/rest-api.md` § Nhập hàng; ràng buộc `data-model.md` `purchase_receipt_items.quantity`, `purchase_receipt_items.unit_price`, `purchase_receipt_items.discount_amount`.
   - AC: Lưu nháp không đổi tồn (US3 #1); dòng sai → 422 kèm details theo dòng (US3 #4); version lệch → 409.
@@ -272,12 +272,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 5.2 — Xác nhận & huỷ
 
-- [ ] T036 [US3] `POST /purchases/:id/confirm`: UPDATE có điều kiện `status='DRAFT' AND version`, tính `unit_cost` dòng (sau phân bổ chiết khấu phiếu), `InventoryService.apply` (PURCHASE_IN), bật `products.has_transactions`, ghi `confirmed_by/at` trong `src/backends/api/src/purchases/purchases.service.ts`
+- [x] T036 [US3] `POST /purchases/:id/confirm`: UPDATE có điều kiện `status='DRAFT' AND version`, tính `unit_cost` dòng (sau phân bổ chiết khấu phiếu), `InventoryService.apply` (PURCHASE_IN), bật `products.has_transactions`, ghi `confirmed_by/at` trong `src/backends/api/src/purchases/purchases.service.ts`
   - Deps: T021, T035
   - Result: US3 #2, #3, #6; `data-model.md` `purchase_receipt_items.unit_cost`.
   - AC: Toàn bộ trong một transaction; xác nhận lần 2 → 409 `purchases.alreadyProcessed`.
   - Test: `purchases.test.ts`: xác nhận cộng tồn + avg_cost; 2 xác nhận `Promise.all` → 1 thành công; sửa giá sản phẩm sau đó không đổi phiếu.
-- [ ] T037 [US3] `POST /purchases/:id/cancel`: chỉ DRAFT → CANCELLED; CONFIRMED → 409 `purchases.notDraft` trong `src/backends/api/src/purchases/purchases.service.ts`
+- [x] T037 [US3] `POST /purchases/:id/cancel`: chỉ DRAFT → CANCELLED; CONFIRMED → 409 `purchases.notDraft` trong `src/backends/api/src/purchases/purchases.service.ts`
   - Deps: T035
   - Result: US3 #5, #7 (spec Q1).
   - AC: Huỷ không tạo biến động.
