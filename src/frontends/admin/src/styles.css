@@ -1,0 +1,204 @@
+/* Style riêng của app admin */
+.admin-danger-zone {
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--ant-color-error) 35%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ant-color-error) 4%, transparent);
+}
+
+.admin-perm-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-perm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-perm-list .ant-checkbox-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.admin-perm-key {
+  font-size: 12px;
+}
+
+.admin-mono input,
+.admin-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------- Nhãn HTTP method (màu theo hệ thống gốc) ---------- */
+.method-tag {
+  display: inline-block;
+  min-width: 56px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.method-tag--get { background: #e0f2fe; color: #0369a1; }
+.method-tag--post { background: #d1fae5; color: #047857; }
+.method-tag--put { background: #fef3c7; color: #b45309; }
+.method-tag--patch { background: #ffedd5; color: #c2410c; }
+.method-tag--delete { background: #fee2e2; color: #b91c1c; }
+
+/* ---------- Trang quyền ---------- */
+.perm-name { display: flex; flex-direction: column; gap: 4px; }
+.perm-name__key { font-size: 12px; }
+.perm-name__desc { font-size: 12px; }
+.perm-path { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.perm-form-api { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 0 16px; }
+.admin-perm-row { display: flex; flex-direction: column; gap: 2px; }
+.admin-perm-api { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--b-muted); }
+.admin-perm-api code { font-size: 12px; }
+
+/* ---------- Trang cài đặt ---------- */
+.settings-form .ant-form-item-label > label { width: 100%; }
+.settings-label { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.settings-label__key { font-size: 11px; }
+.settings-extra { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.settings-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: var(--b-muted);
+  word-break: break-all;
+}
+
+/* ---------- Dashboard ---------- */
+.dash-chart-card { border-radius: 16px !important; height: 100%; box-shadow: 0 1px 3px rgb(0 0 0 / 0.06); }
+.dash-chart-card__head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.dash-chart-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 20px;
+}
+.dash-chart-card__titles { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.dash-chart-card__title { font-size: 15px; line-height: 1.3; }
+.dash-chart-card__desc { font-size: 12px; }
+
+@media (max-width: 600px) {
+  .perm-form-api { grid-template-columns: 1fr; }
+}
+.perm-api { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Modal thông tin người dùng ---------- */
+.admin-info-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--ant-color-fill-quaternary);
+}
+.admin-info-header__user { min-width: 0; }
+.admin-info-header__tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; padding-left: 58px; }
+.admin-info-header__tags .ant-tag { margin-inline-end: 0; }
+.admin-info-section {
+  margin: 20px 0 8px;
+  color: var(--b-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Ô sửa tại chỗ */
+.admin-editable { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.admin-editable__value { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.admin-editable__pen { flex-shrink: 0; color: var(--b-muted) !important; }
+.admin-editable__pen:hover { color: var(--ant-color-primary) !important; }
+.admin-editable__row { display: flex; align-items: flex-start; gap: 6px; }
+.admin-editable__input { flex: 1; min-width: 0; }
+.admin-editable__warning { margin-bottom: 8px; padding: 6px 10px; font-size: 12px; }
+.admin-editable__error { margin-top: 4px; color: var(--ant-color-error); font-size: 12px; }
+.admin-editable__hint { margin-top: 4px; color: var(--b-muted); font-size: 12px; }
+
+/* ---------- Người dùng → tab Phân tích ---------- */
+.users-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) {
+  .users-stats { grid-template-columns: 1fr; }
+}
+.users-stat {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+}
+.users-stat--blue { background: linear-gradient(135deg, #3d97ff, var(--b-primary-700)); }
+.users-stat--emerald { background: linear-gradient(135deg, #10b981, #0d9488); }
+.users-stat--amber { background: linear-gradient(135deg, #f59e0b, #f97316); }
+.users-stat__label { font-size: 12px; font-weight: 500; opacity: 0.85; }
+.users-stat__value { margin-top: 8px; font-size: 22px; font-weight: 700; line-height: 1.2; }
+.users-stat__sub { margin-top: 4px; font-size: 12px; opacity: 0.85; }
+.users-stat__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.15);
+  font-size: 20px;
+}
+.users-chart-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--b-muted); }
+.users-chart-legend__item { display: inline-flex; align-items: center; gap: 6px; }
+.users-chart-legend__dot { width: 10px; height: 10px; border-radius: 2px; }
+.users-chart-empty {
+  display: grid;
+  place-items: center;
+  height: 320px;
+  color: var(--b-muted);
+}
+.users-chart-tooltip {
+  min-width: 200px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+  border: 1px solid var(--b-border);
+}
+.users-chart-tooltip__title { margin-bottom: 8px; font-weight: 500; color: var(--b-heading); }
+.users-chart-tooltip__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 2px 0;
+  color: var(--b-muted);
+}
+.users-chart-tooltip__value { color: var(--b-heading); font-variant-numeric: tabular-nums; }

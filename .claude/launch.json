@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@base/api", "dev"],
+      "port": 4000
+    },
+    {
+      "name": "user",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@base/user", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@base/admin", "dev"],
+      "port": 5174
+    }
+  ]
+}

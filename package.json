@@ -1,0 +1,36 @@
+{
+  "name": "base-web-system",
+  "private": true,
+  "packageManager": "pnpm@11.3.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter=@base/api",
+    "dev:user": "turbo run dev --filter=@base/user",
+    "dev:admin": "turbo run dev --filter=@base/admin",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "db:generate": "pnpm --filter @base/db generate",
+    "db:migrate": "pnpm --filter @base/db migrate",
+    "db:seed": "pnpm --filter @base/db seed",
+    "db:studio": "pnpm --filter @base/db studio",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check": "pnpm lint && pnpm typecheck && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.6.0",
+    "turbo": "^2.11.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}

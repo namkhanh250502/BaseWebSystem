@@ -1,0 +1,16 @@
+{
+  "extends": "@base/config/tsconfig.node.json",
+  "compilerOptions": {
+    // NestJS dựa vào decorator + metadata kiểu tham số để tiêm phụ thuộc (DI)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    // Webpack (ts-loader) biên dịch từng file; tắt isolatedModules để dùng kiểu trong
+    // tham số constructor có decorator mà không phải tách `import type`
+    "isolatedModules": false,
+    "noUnusedLocals": false,
+    "strictPropertyInitialization": false,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

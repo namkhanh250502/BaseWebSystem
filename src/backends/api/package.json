@@ -1,0 +1,47 @@
+{
+  "name": "@base/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@base/db": "workspace:*",
+    "@base/server-kit": "workspace:*",
+    "@base/shared": "workspace:*",
+    "@nestjs/common": "^11.2.8",
+    "@nestjs/core": "^11.2.8",
+    "@nestjs/platform-express": "^11.2.8",
+    "@simplewebauthn/server": "^14.0.3",
+    "express": "^5.3.0",
+    "ioredis": "^5.11.1",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@base/config": "workspace:*",
+    "@nestjs/cli": "^11.0.24",
+    "@nestjs/testing": "^11.2.8",
+    "@swc/core": "^1.16.21",
+    "@types/express": "^5.0.0",
+    "@types/ioredis-mock": "^8.2.8",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
+    "drizzle-orm": "^0.45.4",
+    "ioredis-mock": "^8.13.1",
+    "supertest": "^7.3.1",
+    "ts-loader": "^9.6.2",
+    "typescript": "~6.0.3",
+    "unplugin-swc": "^2.0.0",
+    "vitest": "^5.1.0",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
