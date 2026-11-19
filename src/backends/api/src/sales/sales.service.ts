@@ -45,10 +45,16 @@ import {
 import type { z } from 'zod';
 import type { Principal } from '../auth/principal';
 import { InjectDb, type Database, type DbOrTx, type Tx } from '../core/database';
-import { containsPattern, iso, loadUserRefs, pageMeta } from '../core/query-helpers';
+import {
+  containsPattern,
+  isUniqueViolation,
+  iso,
+  loadUserRefs,
+  pageMeta,
+} from '../core/query-helpers';
 import { DocumentCodeService } from '../inventory/document-code.service';
 import { InventoryService } from '../inventory/inventory.service';
-import { ProductsService } from '../products/products.service';
+import { loadProductsForDocument } from '../products/product-lines';
 import { allocateDocumentDiscount, money, priceDocument, qty } from './pricing';
 
 type ListQuery = z.infer<typeof listSalesOrdersQuerySchema>;
@@ -86,11 +92,6 @@ const SORT_COLUMNS = {
   createdAt: salesOrders.createdAt,
 } as const;
 
-function isUniqueViolation(error: unknown): boolean {
-  const pg = (error as { cause?: { code?: string }; code?: string } | null) ?? {};
-  return (pg.cause?.code ?? pg.code) === '23505';
-}
-
 /**
  * Đơn bán: Nháp (không đổi tồn) → Chốt (kiểm tra + trừ tồn, chốt giá bán + giá vốn, đúng một
  * lần) → Thanh toán (UNPAID → PAID một chiều) → Huỷ (cộng lại tồn theo giá vốn đã lưu).
@@ -101,7 +102,6 @@ export class SalesService {
     @InjectDb() private readonly db: Database,
     private readonly inventory: InventoryService,
     private readonly codes: DocumentCodeService,
-    private readonly productsService: ProductsService,
   ) {}
 
   // ----- Đọc -----
@@ -232,7 +232,7 @@ export class SalesService {
 
   /** Kiểm tra sản phẩm + quyền sửa giá, tính tiền, ghi lại dòng đơn (snapshot SKU / tên / giá) */
   private async writeLines(tx: Tx, orderId: string, input: OrderInput, actor: SalesActor) {
-    const byId = await this.productsService.loadForDocument(tx, input.items, {
+    const byId = await loadProductsForDocument(tx, input.items, {
       requireActive: true,
     });
     const lines = input.items.map((item) => {
@@ -394,7 +394,7 @@ export class SalesService {
       .from(salesOrderItems)
       .where(eq(salesOrderItems.orderId, id))
       .orderBy(asc(salesOrderItems.lineNo));
-    await this.productsService.loadForDocument(tx, items, { requireActive: true });
+    await loadProductsForDocument(tx, items, { requireActive: true });
 
     const priced = priceDocument(
       items.map((i) => ({

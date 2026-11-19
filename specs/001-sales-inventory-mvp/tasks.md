@@ -344,22 +344,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 **Independent test**: US6 #1–#7; quickstart bước 11.
 
-- [ ] T045 [US6] `GET /inventory` (tìm, lọc danh mục/trạng thái tồn/trạng thái sản phẩm, sắp xếp, `summary` tổng SL, giá trị (khi `inventory.viewValue`), số sắp hết/hết) trong `src/backends/api/src/inventory/inventory.controller.ts`, `inventory-query.service.ts`
+- [x] T045 [US6] `GET /inventory` (tìm, lọc danh mục/trạng thái tồn/trạng thái sản phẩm, sắp xếp, `summary` tổng SL, giá trị (khi `inventory.viewValue`), số sắp hết/hết) trong `src/backends/api/src/inventory/inventory.controller.ts`, `inventory-query.service.ts`
   - Deps: T021, T023
   - Result: FR-028, FR-029; giá trị tồn theo `data-model.md` § Quy tắc tính toán.
   - AC: Staff không nhận `avgCost`/`value`.
   - Test: `src/backends/api/test/inventory.test.ts`: lọc LOW/OUT, summary đúng, Staff ẩn giá trị.
-- [ ] T046 [US6] `GET /inventory/movements` (lọc sản phẩm, loại, loại chứng từ, ngày, mã chứng từ) trong `src/backends/api/src/inventory/inventory.controller.ts`, `inventory-query.service.ts`
+- [x] T046 [US6] `GET /inventory/movements` (lọc sản phẩm, loại, loại chứng từ, ngày, mã chứng từ) trong `src/backends/api/src/inventory/inventory.controller.ts`, `inventory-query.service.ts`
   - Deps: T045
   - Result: Lịch sử nhập/xuất/biến động; `unitCost` ẩn khi thiếu `inventory.viewValue`.
   - AC: Không có endpoint sửa/xoá movement.
   - Test: `inventory.test.ts`: lọc theo loại `PURCHASE_IN` / `SALE_OUT`.
-- [ ] T047 [US6] Điều chỉnh tồn: `POST /inventory/adjustments` (idempotent `inventory_adjustments.client_request_id`, lý do bắt buộc, `note` bắt buộc khi OTHER, `countedQuantity` cho STOCKTAKE → tính chênh lệch, `quantityChange = 0` → 422 `inventory.noChange`), `GET` list/detail trong `src/backends/api/src/inventory/adjustments.service.ts`, `adjustments.controller.ts`
+- [x] T047 [US6] Điều chỉnh tồn: `POST /inventory/adjustments` (idempotent `inventory_adjustments.client_request_id`, lý do bắt buộc, `note` bắt buộc khi OTHER, `countedQuantity` cho STOCKTAKE → tính chênh lệch, `quantityChange = 0` → 422 `inventory.noChange`), `GET` list/detail trong `src/backends/api/src/inventory/adjustments.service.ts`, `adjustments.controller.ts`
   - Deps: T021
   - Result: US6 #1–#4; `data-model.md` `inventory_adjustments.reason`, `inventory_adjustments.note`, `inventory_adjustment_items.counted_quantity`, `inventory_adjustment_items.quantity_after`.
   - AC: Tồn âm → 409 `inventory.negativeStock` + details; avg_cost không đổi.
   - Test: `inventory.test.ts`: −2 hư hỏng, −6 bị chặn, kiểm kê 8 từ 5 → +3, thiếu lý do → 422, gửi lại cùng clientRequestId.
-- [ ] T048 [US6] Kiểm thử đối soát sổ cái: sau chuỗi nhập/bán/huỷ/điều chỉnh ngẫu nhiên, mọi sản phẩm Σ `quantity_change` = `inventory_balances.quantity` và `quantity_after` liên tục trong `src/backends/api/test/inventory.test.ts`
+- [x] T048 [US6] Kiểm thử đối soát sổ cái: sau chuỗi nhập/bán/huỷ/điều chỉnh ngẫu nhiên, mọi sản phẩm Σ `quantity_change` = `inventory_balances.quantity` và `quantity_after` liên tục trong `src/backends/api/test/inventory.test.ts`
   - Deps: T037, T043, T047
   - Result: SC-004, US6 #6–#7.
   - AC: 100% sản phẩm khớp.

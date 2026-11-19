@@ -1,5 +1,6 @@
-import { inArray, users } from '@base/db';
-import { fullName, type UserRef } from '@base/shared';
+import { inArray, sql, users, type SQL } from '@base/db';
+import { BUSINESS_TIME_ZONE, fullName, type UserRef } from '@base/shared';
+import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import type { DbOrTx } from './database';
 
 /**
@@ -39,4 +40,15 @@ export async function loadUserRefs(
 /** Date | null → ISO string | null */
 export function iso(value: Date | null | undefined): string | null {
   return value ? value.toISOString() : null;
+}
+
+/** Lỗi vi phạm ràng buộc unique của PostgreSQL (Drizzle bọc lỗi pg trong `cause`) */
+export function isUniqueViolation(error: unknown): boolean {
+  const pg = (error as { cause?: { code?: string }; code?: string } | null) ?? {};
+  return (pg.cause?.code ?? pg.code) === '23505';
+}
+
+/** Ngày (giờ Việt Nam) của cột timestamptz — lọc / nhóm theo ngày nghiệp vụ (FR-033) */
+export function businessDay(column: AnyPgColumn | SQL): SQL<string> {
+  return sql<string>`(${column} at time zone ${BUSINESS_TIME_ZONE})::date`;
 }

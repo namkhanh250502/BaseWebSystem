@@ -102,7 +102,8 @@ Quy tắc:
 
 | Method | URL | Quyền | Request | Response | Lỗi riêng |
 | --- | --- | --- | --- | --- | --- |
-| GET | `/inventory` | `inventory.list` | query: `search`, `categoryId`, `stockState`, `status`, `sortBy∈{name,sku,quantity,value}` | `InventoryItemDto[]` + meta (`+ summary: { totalQuantity, totalValue?, lowCount, outCount }`) | |
+| GET | `/inventory` | `inventory.list` | query: `search`, `categoryId`, `stockState`, `status`, `sortBy∈{name,sku,quantity,value}` | `InventoryItemDto[]` + meta | |
+| GET | `/inventory/summary` | `inventory.list` | cùng query với `/inventory` (bỏ qua `stockState`) | `{ totalQuantity, totalValue?, lowCount, outCount }` — tách endpoint để giữ nguyên envelope `{ data, meta }` | |
 | GET | `/inventory/movements` | `inventory.movements` | query: `productId?`, `type?`, `refType?`, `dateFrom`, `dateTo`, `search` (mã chứng từ) | `InventoryMovementDto[]` + meta | |
 | GET | `/inventory/adjustments` | `inventory.adjustments.list` | query: `reason`, `dateFrom`, `dateTo`, `search` | `InventoryAdjustmentDto[]` + meta | |
 | GET | `/inventory/adjustments/:id` | `inventory.adjustments.list` | | `InventoryAdjustmentDetailDto` | 404 |

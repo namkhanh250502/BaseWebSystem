@@ -42,6 +42,8 @@ export interface StockChange {
   unitCost?: Decimal;
   /** Dòng chứng từ nguồn */
   refItemId?: string;
+  /** Loại biến động riêng cho dòng (điều chỉnh tồn có cả tăng lẫn giảm); mặc định theo ctx */
+  type?: MovementType;
 }
 
 export interface MovementContext {
@@ -216,7 +218,7 @@ export class InventoryService {
       applied.push(movement);
       rows.push({
         ...movement,
-        type: ctx.type,
+        type: change.type ?? ctx.type,
         quantityChange: decimalToString(quantityChange),
         refType: ctx.refType,
         refId: ctx.refId,

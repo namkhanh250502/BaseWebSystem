@@ -33,7 +33,7 @@ import { InjectDb, type Database, type DbOrTx, type Tx } from '../core/database'
 import { containsPattern, iso, loadUserRefs, pageMeta } from '../core/query-helpers';
 import { DocumentCodeService } from '../inventory/document-code.service';
 import { InventoryService } from '../inventory/inventory.service';
-import { ProductsService } from '../products/products.service';
+import { loadProductsForDocument } from '../products/product-lines';
 import { costString, money, priceDocument, purchaseUnitCosts, qty } from '../sales/pricing';
 import { SuppliersService } from '../suppliers/suppliers.service';
 
@@ -60,7 +60,6 @@ export class PurchasesService {
     @InjectDb() private readonly db: Database,
     private readonly inventory: InventoryService,
     private readonly codes: DocumentCodeService,
-    private readonly productsService: ProductsService,
     private readonly suppliersService: SuppliersService,
   ) {}
 
@@ -183,7 +182,7 @@ export class PurchasesService {
   /** Kiểm tra + tính tiền; ghi dòng phiếu (xoá dòng cũ khi sửa) */
   private async writeLines(tx: Tx, receiptId: string, input: PurchaseInput) {
     await this.suppliersService.assertActive(input.supplierId, tx);
-    await this.productsService.loadForDocument(tx, input.items, { requireActive: true });
+    await loadProductsForDocument(tx, input.items, { requireActive: true });
     const priced = priceDocument(input.items, input.discountAmount);
     await tx.delete(purchaseReceiptItems).where(eq(purchaseReceiptItems.receiptId, receiptId));
     await tx.insert(purchaseReceiptItems).values(
