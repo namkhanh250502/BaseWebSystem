@@ -1,0 +1,42 @@
+import { inArray, users } from '@base/db';
+import { fullName, type UserRef } from '@base/shared';
+import type { DbOrTx } from './database';
+
+/**
+ * Mẫu `ilike` "chứa chuỗi" có escape ký tự đại diện, để tìm SKU như `A_1` hay `50%`
+ * không bị hiểu thành wildcard.
+ */
+export function containsPattern(search: string): string {
+  return `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+}
+
+/** Thông tin phân trang chuẩn cho `paginated()` */
+export function pageMeta(page: number, pageSize: number, total: number | undefined) {
+  return { page, pageSize, total: total ?? 0 };
+}
+
+/** Nạp tên hiển thị của nhiều người dùng một lần (người tạo / xác nhận / huỷ chứng từ) */
+export async function loadUserRefs(
+  db: DbOrTx,
+  ids: (string | null | undefined)[],
+): Promise<(id: string | null | undefined) => UserRef | null> {
+  const unique = [...new Set(ids.filter((id): id is string => Boolean(id)))];
+  const rows = unique.length
+    ? await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        })
+        .from(users)
+        .where(inArray(users.id, unique))
+    : [];
+  const map = new Map(rows.map((u) => [u.id, { id: u.id, name: fullName(u, 'vi') || u.email }]));
+  return (id) => (id ? (map.get(id) ?? null) : null);
+}
+
+/** Date | null → ISO string | null */
+export function iso(value: Date | null | undefined): string | null {
+  return value ? value.toISOString() : null;
+}

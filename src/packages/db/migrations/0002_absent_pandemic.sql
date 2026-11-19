@@ -1,0 +1,1 @@
+ALTER TABLE "product_images" ADD COLUMN "replaces_image_id" uuid;

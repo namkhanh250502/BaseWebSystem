@@ -15,6 +15,13 @@
       "when": 1795068721672,
       "tag": "0001_concerned_hammerhead",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795069376131,
+      "tag": "0002_absent_pandemic",
+      "breakpoints": true
     }
   ]
 }

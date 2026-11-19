@@ -166,7 +166,7 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 2.1 — Danh mục
 
-- [ ] T022 [US1] Tạo `CategoriesModule` (controller/service) theo `contracts/rest-api.md` § Danh mục trong `src/backends/api/src/categories/`; đăng ký `app.module.ts`; key lỗi `categories.notFound|nameExists|inUse|inactive` ở `src/backends/api/src/i18n/{vi,en}.ts`; Swagger decorator
+- [x] T022 [US1] Tạo `CategoriesModule` (controller/service) theo `contracts/rest-api.md` § Danh mục trong `src/backends/api/src/categories/`; đăng ký `app.module.ts`; key lỗi `categories.notFound|nameExists|inUse|inactive` ở `src/backends/api/src/i18n/{vi,en}.ts`; Swagger decorator
   - Deps: T005, T008, T015, T016
   - Result: 5 endpoint, `productCount` trong DTO.
   - AC: Trùng tên không phân biệt hoa thường → 409; xoá khi còn sản phẩm → 409 `categories.inUse`.
@@ -174,17 +174,17 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 2.2 — Sản phẩm
 
-- [ ] T023 [US1] Tạo `ProductsModule` (`products.controller.ts`, `products.service.ts`, `product.mapper.ts`) trong `src/backends/api/src/products/`: create (cùng tx `InventoryService.initBalance`), update (chặn tắt `allowDecimalQuantity` khi tồn lẻ), delete (chặn khi `has_transactions`), get; đăng ký `app.module.ts`; key lỗi `products.*` ở i18n backend
+- [x] T023 [US1] Tạo `ProductsModule` (`products.controller.ts`, `products.service.ts`, `product.mapper.ts`) trong `src/backends/api/src/products/`: create (cùng tx `InventoryService.initBalance`), update (chặn tắt `allowDecimalQuantity` khi tồn lẻ), delete (chặn khi `has_transactions`), get; đăng ký `app.module.ts`; key lỗi `products.*` ở i18n backend
   - Deps: T021, T022
   - Result: Theo `contracts/rest-api.md` § Sản phẩm; trường `data-model.md` `products.sku`, `products.has_transactions`, `products.allow_decimal_quantity`.
   - AC: SKU trùng (khác hoa thường) → 409; tạo sản phẩm sinh `inventory_balances` = 0; danh mục INACTIVE → 422.
   - Test: `catalog.test.ts` (describe Sản phẩm): kịch bản US1 #1, #2, #4, #5.
-- [ ] T024 [US1] Danh sách sản phẩm: tìm tên/SKU (`ilike` lower), lọc `categoryId`, `status`, `stockState`, sắp xếp `name|sku|sellingPrice|stock|createdAt`, phân trang, join `inventory_balances`; ẩn `purchasePrice`/`avgCost` khi thiếu `products.viewCost` trong `src/backends/api/src/products/products.service.ts`, `product.mapper.ts`
+- [x] T024 [US1] Danh sách sản phẩm: tìm tên/SKU (`ilike` lower), lọc `categoryId`, `status`, `stockState`, sắp xếp `name|sku|sellingPrice|stock|createdAt`, phân trang, join `inventory_balances`; ẩn `purchasePrice`/`avgCost` khi thiếu `products.viewCost` trong `src/backends/api/src/products/products.service.ts`, `product.mapper.ts`
   - Deps: T023
   - Result: `ProductDto` có `stock.state` tính theo `data-model.md` § Quy tắc tính toán.
   - AC: US1 #3 đúng; Staff không nhận trường giá vốn.
   - Test: `catalog.test.ts`: lọc kết hợp, sort theo tồn, stockState LOW/OUT, Staff không thấy `avgCost`.
-- [ ] T025 [US1] Metadata ảnh trong DTO: `primaryImage` (list) và `images` (detail) đọc `product_images` status READY, `url` để `null` cho tới Phase 3 trong `src/backends/api/src/products/product.mapper.ts`
+- [x] T025 [US1] Metadata ảnh trong DTO: `primaryImage` (list) và `images` (detail) đọc `product_images` status READY, `url` để `null` cho tới Phase 3 trong `src/backends/api/src/products/product.mapper.ts`
   - Deps: T024
   - Result: Hợp đồng DTO ổn định trước khi có MinIO.
   - AC: Không gọi MinIO ở bước này.
@@ -200,12 +200,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 3.1 — Storage
 
-- [ ] T026 [US2] Thêm dependency `minio` vào `src/backends/api/package.json`; tạo `StorageModule` @Global + `StorageService` (client `internal` + `signer`, `createPresignedPost`, `presignedGetUrl`, `stat`, `readHead`, `remove`, `ensureBucket`, `isEnabled`) trong `src/backends/api/src/storage/storage.module.ts`, `storage.service.ts`; đăng ký `app.module.ts`; key lỗi `storage.unavailable`
+- [x] T026 [US2] Thêm dependency `minio` vào `src/backends/api/package.json`; tạo `StorageModule` @Global + `StorageService` (client `internal` + `signer`, `createPresignedPost`, `presignedGetUrl`, `stat`, `readHead`, `remove`, `ensureBucket`, `isEnabled`) trong `src/backends/api/src/storage/storage.module.ts`, `storage.service.ts`; đăng ký `app.module.ts`; key lỗi `storage.unavailable`
   - Deps: T004
   - Result: Theo `contracts/storage-upload.md` § Thành phần, research R6.
   - AC: Credential không xuất hiện trong response/log; thiếu cấu hình → `isEnabled=false`, gọi API ảnh → 503.
   - Test: Typecheck; tích hợp ở T031.
-- [ ] T027 [P] [US2] Tạo `FakeStorageService` (bộ nhớ: lưu object giả lập, cho test "upload" bytes, đếm remove) trong `src/backends/api/test/helpers/fake-storage.ts`; override provider trong `createTestApp` ở `src/backends/api/test/helpers/app.ts`
+- [x] T027 [P] [US2] Tạo `FakeStorageService` (bộ nhớ: lưu object giả lập, cho test "upload" bytes, đếm remove) trong `src/backends/api/test/helpers/fake-storage.ts`; override provider trong `createTestApp` ở `src/backends/api/test/helpers/app.ts`
   - Deps: T026
   - Result: e2e không cần MinIO (research R16).
   - AC: Test hiện có không đổi hành vi.
@@ -213,24 +213,24 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 3.2 — Ảnh sản phẩm
 
-- [ ] T028 [US2] `ProductImagesService` + 5 endpoint ảnh (`upload-requests`, `complete` với kiểm tra stat + magic bytes, `PATCH` ảnh chính, `PUT order`, `DELETE`) theo `contracts/rest-api.md` § Ảnh và `contracts/storage-upload.md` § Luồng tải ảnh trong `src/backends/api/src/products/product-images.service.ts`, `products.controller.ts`; key lỗi `productImages.*`
+- [x] T028 [US2] `ProductImagesService` + 5 endpoint ảnh (`upload-requests`, `complete` với kiểm tra stat + magic bytes, `PATCH` ảnh chính, `PUT order`, `DELETE`) theo `contracts/rest-api.md` § Ảnh và `contracts/storage-upload.md` § Luồng tải ảnh trong `src/backends/api/src/products/product-images.service.ts`, `products.controller.ts`; key lỗi `productImages.*`
   - Deps: T025, T026
   - Result: Trạng thái `data-model.md` `product_images.status`, `product_images.is_primary`, `product_images.object_key`, `product_images.upload_expires_at`; tối đa 10 ảnh (khoá `products FOR UPDATE`).
   - AC: Ảnh đầu tiên tự là ảnh chính; xoá ảnh chính → ảnh đầu tiên còn lại thành chính; thay ảnh giữ vị trí + cờ chính.
   - Test: `src/backends/api/test/product-images.test.ts`: US2 #1–#4, giới hạn 10, complete khi chưa upload → 409, magic bytes sai → 422 + object bị xoá, MinIO tắt → 503.
-- [ ] T029 [US2] Presigned download: `url`/`expiresAt` (15 phút, client `signer`) cho `primaryImage` và `images` trong `src/backends/api/src/products/product.mapper.ts`; lỗi ký → `url: null` không làm hỏng response
+- [x] T029 [US2] Presigned download: `url`/`expiresAt` (15 phút, client `signer`) cho `primaryImage` và `images` trong `src/backends/api/src/products/product.mapper.ts`; lỗi ký → `url: null` không làm hỏng response
   - Deps: T028
   - Result: Danh sách/chi tiết sản phẩm có URL xem ảnh.
   - AC: URL không chứa secret; MinIO tắt → sản phẩm vẫn trả 200.
   - Test: `product-images.test.ts`: DTO có url + expiresAt; storage lỗi → url null.
-- [ ] T030 [US2] `StorageCleanupService` (mỗi giờ, `pg_try_advisory_lock`, tắt khi `NODE_ENV=test`): xoá `PENDING` quá hạn, `DELETED`, sweep object không còn bản ghi > 24 giờ; script `storage:cleanup` trong `src/backends/api/src/storage/storage-cleanup.service.ts`, `src/backends/api/package.json`; xoá sản phẩm xoá object sau commit trong `products.service.ts`
+- [x] T030 [US2] `StorageCleanupService` (mỗi giờ, `pg_try_advisory_lock`, tắt khi `NODE_ENV=test`): xoá `PENDING` quá hạn, `DELETED`, sweep object không còn bản ghi > 24 giờ; script `storage:cleanup` trong `src/backends/api/src/storage/storage-cleanup.service.ts`, `src/backends/api/package.json`; xoá sản phẩm xoá object sau commit trong `products.service.ts`
   - Deps: T028
-  - Result: SC-009; research R15.
+  - Result: SC-009; research R15. *Triển khai: dọn định kỳ trong API (`runOnce()`); bỏ script CLI `storage:cleanup` (bundle webpack chỉ có `main.ts`, không cần thêm entry).*
   - AC: Hai instance không chạy trùng; lỗi remove được thử lại lần sau.
   - Test: `product-images.test.ts`: gọi trực tiếp `runOnce()` — PENDING hết hạn bị xoá, DELETED bị xoá, READY giữ nguyên; xoá sản phẩm có ảnh → object bị xoá.
-- [ ] T031 [P] [US2] Bộ tích hợp MinIO thật (bỏ qua khi thiếu `TEST_MINIO_URL`): presigned POST bằng `fetch` + FormData, vượt size bị MinIO từ chối, complete, GET presigned, xoá trong `src/backends/api/test/storage.minio.test.ts`
+- [x] T031 [P] [US2] Bộ tích hợp MinIO thật (bỏ qua khi thiếu `TEST_MINIO_URL`): presigned POST bằng `fetch` + FormData, vượt size bị MinIO từ chối, complete, GET presigned, xoá trong `src/backends/api/test/storage.minio.test.ts`
   - Deps: T029
-  - Result: Kiểm chứng ràng buộc phía MinIO.
+  - Result: Kiểm chứng ràng buộc phía MinIO. *Chưa chạy được trên máy dev: binary MinIO cài sẵn là bản AIStor cần license (từ chối mọi thao tác S3).*
   - AC: Skip sạch khi không có biến.
   - Test: Chính nó.
 

@@ -11,6 +11,8 @@ import { TotpMethod } from '../../src/auth/two-factor/totp.method';
 import { DB, type Database } from '../../src/core/database';
 import { MailService } from '../../src/mail/mail.service';
 import { SettingsService } from '../../src/settings/settings.service';
+import { StorageService } from '../../src/storage/storage.service';
+import { FakeStorageService } from './fake-storage';
 
 export interface SentMail {
   kind: 'resetPassword' | 'verificationCode' | 'twoFactorCode';
@@ -87,6 +89,8 @@ export interface TestApp {
   app: INestApplication;
   server: ReturnType<INestApplication['getHttpServer']>;
   mail: FakeMailService;
+  /** MinIO giả (bộ nhớ) */
+  storage: FakeStorageService;
   totp: TestTotpMethod;
   db: Database;
   settings: SettingsService;
@@ -95,12 +99,15 @@ export interface TestApp {
   close: () => Promise<void>;
 }
 
-/** Khởi động app NestJS đầy đủ (giống main.ts) với MailService giả */
+/** Khởi động app NestJS đầy đủ (giống main.ts) với MailService và StorageService giả */
 export async function createTestApp(options: ConfigureAppOptions = {}): Promise<TestApp> {
   const mail = new FakeMailService();
+  const storage = new FakeStorageService();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(MailService)
     .useValue(mail)
+    .overrideProvider(StorageService)
+    .useValue(storage)
     .overrideProvider(TotpMethod)
     .useFactory({ factory: (db: Database) => new TestTotpMethod(db), inject: [DB] })
     .compile();
@@ -115,6 +122,7 @@ export async function createTestApp(options: ConfigureAppOptions = {}): Promise<
     app,
     server: app.getHttpServer(),
     mail,
+    storage,
     totp: app.get(TotpMethod) as TestTotpMethod,
     db: app.get<Database>(DB),
     settings,

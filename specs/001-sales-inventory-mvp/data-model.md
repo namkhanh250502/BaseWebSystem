@@ -94,6 +94,7 @@ Index: `(category_id)`, `(status)`. Tìm kiếm `ilike` trên `lower(name)`/`low
 | is_primary | boolean | NOT NULL default false |
 | status | image_status | NOT NULL default `PENDING` |
 | upload_expires_at | timestamptz | NOT NULL khi PENDING |
+| replaces_image_id | uuid | Ảnh READY sẽ bị thay khi ảnh PENDING này hoàn tất (migration 0002) |
 | created_by | uuid | FK users `SET NULL` |
 | created_at, updated_at | timestamptz | |
 

@@ -72,6 +72,8 @@ export const productImages = pgTable(
     status: imageStatusEnum().notNull().default('PENDING'),
     /** Hạn hoàn tất tải lên (PENDING quá hạn bị dọn) */
     uploadExpiresAt: timestamp({ withTimezone: true }),
+    /** Ảnh PENDING này sẽ thay ảnh nào khi hoàn tất (giữ vị trí + cờ ảnh chính của ảnh cũ) */
+    replacesImageId: uuid(),
     createdBy: uuid().references(() => users.id, { onDelete: 'set null' }),
     ...timestamps,
   },
