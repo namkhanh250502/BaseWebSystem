@@ -156,7 +156,7 @@ Chi tiết: skill `frontend-page`. Checklist:
 
 ## 7. Test e2e — `src/backends/api/test/products.test.ts`
 
-Chi tiết: skill `api-testing`. Tối thiểu: CRUD thành công với admin, user không có quyền nhận 403, validate sai nhận 400, không tồn tại nhận 404 với đúng key.
+Chi tiết: skill `api-testing`. Tối thiểu: CRUD thành công với admin, user không có quyền nhận 403, validate sai nhận 422 (`errors.validation`), không tồn tại nhận 404 với đúng key.
 
 ## 8. Hoàn tất
 

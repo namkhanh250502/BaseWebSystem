@@ -61,9 +61,9 @@ describe('Products: CRUD & phân quyền', () => {
     fail(await client.get('/products'), 403);
   });
 
-  it('dữ liệu sai → 400; không tồn tại → 404 với key riêng', async () => {
+  it('dữ liệu sai → 422; không tồn tại → 404 với key riêng', async () => {
     const { client } = await signedInClient(t, { admin: true }, 'admin');
-    fail(await client.post('/products', { name: '' }), 400);
+    fail(await client.post('/products', { name: '' }), 422, 'errors.validation');
     fail(await client.get(`/products/${crypto.randomUUID()}`), 404, 'products.notFound');
   });
 });
@@ -72,7 +72,7 @@ describe('Products: CRUD & phân quyền', () => {
 Quy ước:
 
 - Tên `describe`/`it` viết **tiếng Việt có dấu**, mô tả hành vi mong đợi (đây cũng là nội dung ghi vào `docs/TEST-CASES.md`).
-- Kiểm tra cả nhánh **thành công lẫn từ chối**: chưa đăng nhập (401), thiếu quyền (403), validate (400), không tồn tại (404), trùng (409), rate limit (429) nếu có.
+- Kiểm tra cả nhánh **thành công lẫn từ chối**: chưa đăng nhập (401), thiếu quyền (403), validate (422 `errors.validation`), lỗi nghiệp vụ `badRequest` (400), không tồn tại (404), trùng (409), rate limit (429) nếu có.
 - Status đúng quy ước: tạo mới 201, hành động 200, không body 204.
 - Đổi setting trong test qua `t.setSetting(...)` (xoá cache) và **trả lại giá trị cũ** trong `afterAll`/`finally` để không ảnh hưởng file khác.
 - Kiểm tra side effect trong DB bằng `t.db` khi API không trả đủ (vd. token chỉ lưu hash).
