@@ -5,6 +5,7 @@ packages:
 allowBuilds:
   esbuild: true
   '@swc/core': true
+  '@scarf/scarf': false
 minimumReleaseAgeExclude:
   - '@tanstack/query-core@5.106.1'
   - '@tanstack/react-query@5.106.1'

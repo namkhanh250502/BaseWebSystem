@@ -58,12 +58,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.2 — OpenAPI
 
-- [ ] T005 Thêm dependency `@nestjs/swagger` vào `src/backends/api/package.json`; tạo `ApiZodBody`, `ApiZodQuery`, `ApiZodResponse` (dùng `z.toJSONSchema`) trong `src/backends/api/src/decorators/api-docs.ts`
+- [x] T005 Thêm dependency `@nestjs/swagger` vào `src/backends/api/package.json`; tạo `ApiZodBody`, `ApiZodQuery`, `ApiZodResponse` (dùng `z.toJSONSchema`) trong `src/backends/api/src/decorators/api-docs.ts`
   - Deps: T004
   - Result: Decorator sinh tài liệu từ cùng schema zod dùng để validate (research R7).
   - AC: Không thêm class-validator / nestjs-zod; decorator không ảnh hưởng validate.
   - Test: Typecheck + build `pnpm --filter @base/api build`.
-- [ ] T006 Đăng ký Swagger tại `/api/docs` và `/api/docs-json` khi `API_DOCS_ENABLED` trong `src/backends/api/src/app.setup.ts`
+- [x] T006 Đăng ký Swagger tại `/api/docs` và `/api/docs-json` khi `API_DOCS_ENABLED` trong `src/backends/api/src/app.setup.ts`
   - Deps: T005
   - Result: Swagger UI hiện các route hiện có (tối thiểu tên route).
   - AC: Production mặc định tắt; route docs không đi qua `AuthGuard` của prefix `/api/v1`.

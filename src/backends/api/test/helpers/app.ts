@@ -6,7 +6,7 @@ import type { Locale } from '@base/shared';
 import request from 'supertest';
 import { expect } from 'vitest';
 import { AppModule } from '../../src/app.module';
-import { configureApp } from '../../src/app.setup';
+import { configureApp, type ConfigureAppOptions } from '../../src/app.setup';
 import { TotpMethod } from '../../src/auth/two-factor/totp.method';
 import { DB, type Database } from '../../src/core/database';
 import { MailService } from '../../src/mail/mail.service';
@@ -96,7 +96,7 @@ export interface TestApp {
 }
 
 /** Khởi động app NestJS đầy đủ (giống main.ts) với MailService giả */
-export async function createTestApp(): Promise<TestApp> {
+export async function createTestApp(options: ConfigureAppOptions = {}): Promise<TestApp> {
   const mail = new FakeMailService();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(MailService)
@@ -108,7 +108,7 @@ export async function createTestApp(): Promise<TestApp> {
     bodyParser: false,
     logger: false,
   });
-  configureApp(app);
+  configureApp(app, options);
   await app.init();
   const settings = app.get(SettingsService);
   return {
