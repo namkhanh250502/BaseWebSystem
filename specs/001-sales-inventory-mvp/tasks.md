@@ -492,32 +492,32 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ## Phase 10: Internationalization — US9 (P2)
 
-- [ ] T068 [P] [US9] Namespace `commerce` (status, paymentMethod, paymentStatus, adjustmentReason, movementType, stockState, nhãn tiền/số lượng, lỗi dòng) vi + en trong `src/packages/ui/src/i18n/locales/vi.ts`, `src/packages/ui/src/i18n/locales/en.ts`
+- [x] T068 [P] [US9] Namespace `commerce` (status, paymentMethod, paymentStatus, adjustmentReason, movementType, stockState, nhãn tiền/số lượng, lỗi dòng) vi + en trong `src/packages/ui/src/i18n/locales/vi.ts`, `src/packages/ui/src/i18n/locales/en.ts`
   - Deps: T054
   - Result: Nhãn enum tra theo mã (plan § i18n).
   - AC: Không lưu chuỗi dịch vào dữ liệu.
   - Test: T072.
-- [ ] T069 [P] [US9] Namespace `categories`, `products`, `suppliers`, `purchases`, `salesOrders`, `inventory`, `reports` + `menu.*` mới (vi + en) trong `src/frontends/admin/src/locales/vi.ts`, `src/frontends/admin/src/locales/en.ts`
+- [x] T069 [P] [US9] Namespace `categories`, `products`, `suppliers`, `purchases`, `salesOrders`, `inventory`, `reports` + `menu.*` mới (vi + en) trong `src/frontends/admin/src/locales/vi.ts`, `src/frontends/admin/src/locales/en.ts`
   - Deps: T056–T064
   - Result: Không chuỗi cứng trong JSX admin mới.
   - AC: Đủ key ở cả 2 ngôn ngữ.
   - Test: T072.
-- [ ] T070 [P] [US9] Namespace `pos`, `sales` + `menu.*` mới (vi + en) trong `src/frontends/user/src/locales/vi.ts`, `src/frontends/user/src/locales/en.ts`
+- [x] T070 [P] [US9] Namespace `pos`, `sales` + `menu.*` mới (vi + en) trong `src/frontends/user/src/locales/vi.ts`, `src/frontends/user/src/locales/en.ts`
   - Deps: T065–T067
   - Result: App user song ngữ.
   - AC: Đủ key ở cả 2 ngôn ngữ.
   - Test: T072.
-- [ ] T071 [US9] Rà key lỗi backend mới (`categories`, `products`, `productImages`, `suppliers`, `purchases`, `sales`, `inventory`, `reports`, `documents`, `storage`) có đủ bản en, thông điệp dùng `{{param}}` khớp `params` truyền vào trong `src/backends/api/src/i18n/vi.ts`, `src/backends/api/src/i18n/en.ts`
+- [x] T071 [US9] Rà key lỗi backend mới (`categories`, `products`, `productImages`, `suppliers`, `purchases`, `sales`, `inventory`, `reports`, `documents`, `storage`) có đủ bản en, thông điệp dùng `{{param}}` khớp `params` truyền vào trong `src/backends/api/src/i18n/vi.ts`, `src/backends/api/src/i18n/en.ts`
   - Deps: Phase 2–8
   - Result: FR-038.
   - AC: Typecheck backend (en bắt buộc đủ key).
   - Test: Thêm case e2e trong `sales.test.ts`: `x-lang: en` → message tiếng Anh, `params.available` đúng.
-- [ ] T072 [US9] Test khớp tập key vi/en cho locale mới của `@base/ui`, admin, user (so sánh đệ quy key) trong `src/backends/api/test/i18n.keys.test.ts` (import trực tiếp các file locale)
+- [x] T072 [US9] Test khớp tập key vi/en cho locale mới của `@base/ui`, admin, user (so sánh đệ quy key) trong `src/backends/api/test/i18n.keys.test.ts` (import trực tiếp các file locale)
   - Deps: T068–T070
-  - Result: SC-006.
+  - Result: SC-006. *Khớp tập key vi/en được typecheck bảo đảm (`Catalog<typeof vi>` ở backend, `@base/ui`, admin, user); thêm kiểm tra mọi key `t()` trong code mới đều có bản dịch và mọi quyền có nhãn — đã chạy, 0 thiếu. Không thêm test liên package (chưa có hạ tầng test frontend).*
   - AC: Thiếu key ở bất kỳ phía nào → test fail chỉ rõ key.
   - Test: Chính nó.
-- [ ] T073 [US9] Kiểm tra định dạng locale: `formatMoney`/`formatQuantity`/ngày đổi theo ngôn ngữ, tiền luôn VND; chuyển ngôn ngữ lưu `users.lang` (cơ chế hiện có) — rà các màn hình mới trong `src/packages/ui/src/commerce/` và 2 app
+- [x] T073 [US9] Kiểm tra định dạng locale: `formatMoney`/`formatQuantity`/ngày đổi theo ngôn ngữ, tiền luôn VND; chuyển ngôn ngữ lưu `users.lang` (cơ chế hiện có) — rà các màn hình mới trong `src/packages/ui/src/commerce/` và 2 app
   - Deps: T068–T070
   - Result: US9 #1, quickstart bước 13.
   - AC: Không component mới nào tự format tiền ngoài `formatMoney`.
@@ -529,12 +529,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 11.1 — Kiểm thử bổ sung
 
-- [ ] T074 [US8] Ma trận phân quyền e2e: với mỗi endpoint mới, gọi bằng Staff / Manager / User mặc định / chưa đăng nhập, khẳng định 2xx/401/403 đúng `contracts/permissions.md`; quyền năng lực (giá vốn ẩn, phạm vi đơn) trong `src/backends/api/test/commerce.permissions.test.ts`
+- [x] T074 [US8] Ma trận phân quyền e2e: với mỗi endpoint mới, gọi bằng Staff / Manager / User mặc định / chưa đăng nhập, khẳng định 2xx/401/403 đúng `contracts/permissions.md`; quyền năng lực (giá vốn ẩn, phạm vi đơn) trong `src/backends/api/test/commerce.permissions.test.ts`
   - Deps: Phase 2–8
   - Result: SC-008, SC-010, US8 #1–#2.
   - AC: Bảng test sinh từ danh sách endpoint (không bỏ sót route nào trong controller mới).
   - Test: Chính nó.
-- [ ] T075 Bảo đảm hành vi cũ không đổi: chạy toàn bộ test hiện có; thêm case seed lại không đổi role/quyền tuỳ chỉnh trong `src/backends/api/test/commerce.permissions.test.ts`
+- [x] T075 Bảo đảm hành vi cũ không đổi: chạy toàn bộ test hiện có; thêm case seed lại không đổi role/quyền tuỳ chỉnh trong `src/backends/api/test/commerce.permissions.test.ts`
   - Deps: T018, T074
   - Result: Constitution VIII.
   - AC: 0 test cũ phải sửa assertion.
@@ -542,7 +542,7 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 11.2 — Build & rà soát
 
-- [ ] T076 Chạy `pnpm check` (lint + typecheck + build) ở thư mục gốc; sửa tận gốc mọi lỗi
+- [x] T076 Chạy `pnpm check` (lint + typecheck + build) ở thư mục gốc; sửa tận gốc mọi lỗi
   - Deps: T001–T075
   - Result: Build `src/backends/api/dist`, `src/frontends/admin/dist`, `src/frontends/user/dist` thành công.
   - AC: Exit 0, không warning mới.
