@@ -19,7 +19,9 @@ AuthGuard (APP_GUARD, toàn cục)                   đăng nhập trừ @Public
 @base/db (Drizzle, inject qua @InjectDb())  →  PostgreSQL
 ```
 
-Response luôn có dạng `{ data, error, meta? }`: `TransformInterceptor` bọc dữ liệu controller trả về (trả `paginated({ items, meta })` để có `meta`), `AllExceptionsFilter` chuyển mọi lỗi (AppError, lỗi Nest, lỗi body-parser/multer) về cùng định dạng. Lỗi: `error = { code, key, message, details? }`, trong đó `message` đã được dịch theo `x-lang` / `Accept-Language`, còn `key` (ví dụ `twoFactor.tokenInvalid`) để frontend xử lý riêng khi cần.
+Response luôn có dạng `{ data, error, meta? }`: `TransformInterceptor` bọc dữ liệu controller trả về (trả `paginated({ items, meta })` để có `meta`), `AllExceptionsFilter` chuyển mọi lỗi (AppError, lỗi Nest, lỗi body-parser/multer) về cùng định dạng. Lỗi: `error = { code, key, message, params?, details? }`, trong đó `message` đã được dịch theo `x-lang` / `Accept-Language`, `key` (ví dụ `twoFactor.tokenInvalid`) để frontend rẽ nhánh (không dựa vào `message`), `params` là tham số của thông báo (vd. `{ sku, available }`) và `details` là chi tiết có cấu trúc (theo trường khi validate; theo dòng sản phẩm với lỗi thiếu hàng).
+
+**Tài liệu API**: Swagger tại `/api/docs` (JSON `/api/docs-json`), bật khi `API_DOCS_ENABLED` (mặc định ngoài production). Module mới mô tả request/response bằng `@ApiZodBody` / `@ApiZodQuery` / `@ApiZodResponse` / `@ApiErrors` (`decorators/api-docs.ts`) — sinh từ **cùng schema zod** dùng để validate, nên tài liệu không lệch code.
 
 ## Xác thực
 
@@ -104,6 +106,21 @@ Chỉ các **key hệ thống** khai báo ở `src/packages/shared/src/constants
 - **Avatar**: `POST /me/avatar` (multipart, tối đa 2MB — `AVATAR_MAX_BYTES`), `DELETE /me/avatar`. File lưu ở `<UPLOAD_DIR>/avatars`, phục vụ công khai qua `GET /files/avatars/:name` (`files.controller.ts`).
 - **Health**: `GET /health` (public) chạy `select 1` vào DB: được thì `200` với `"database": "up"`, lỗi thì `503` với `"status": "degraded"` (dùng cho load balancer / giám sát).
 
+## Bán hàng & tồn kho
+
+> Đặc tả, thiết kế dữ liệu, hợp đồng API và quyền: [specs/001-sales-inventory-mvp](../specs/001-sales-inventory-mvp/) (`spec.md`, `plan.md`, `data-model.md`, `contracts/`).
+
+- **Module**: `categories/`, `products/` (+ ảnh), `suppliers/`, `purchases/`, `sales/`, `inventory/`, `reports/`, `storage/`; dashboard bán hàng ở `dashboard/` (`GET /dashboard/sales-summary`).
+- **Một điểm ghi tồn**: `InventoryService.apply(tx, ctx, changes)` (`inventory/inventory.service.ts`) là nơi duy nhất đổi `inventory_balances` — khoá dòng `SELECT … FOR UPDATE` theo thứ tự `product_id` (không deadlock), kiểm tra đủ hàng / số lượng lẻ, cập nhật tồn + giá vốn, ghi sổ cái `inventory_movements` (chỉ thêm). `CHECK quantity >= 0` ở DB là chốt chặn cuối. Σ sổ cái luôn bằng tồn hiện tại.
+- **Xác nhận đúng một lần**: bước đầu của xác nhận / chốt / huỷ là `UPDATE … WHERE status = 'DRAFT' AND version = $v RETURNING` — yêu cầu trùng hoặc đồng thời nhận 409 (`*.alreadyProcessed` / `*.stale`). Phiếu nháp dùng khoá lạc quan `version`. Tạo đơn bán và phiếu điều chỉnh **idempotent** theo `clientRequestId` (gửi lại trả 200 + chứng từ cũ).
+- **Giá vốn bình quân gia quyền di động**: nhập hàng `avg = (q×avg + q_in×giá_nhập_thuần) / (q+q_in)` (chiết khấu phiếu phân bổ vào từng dòng); bán ghi `unit_cost = avg` lên dòng đơn lúc chốt (avg không đổi); huỷ đơn cộng lại theo giá vốn đã lưu; điều chỉnh không đổi avg. Phiếu nhập đã xác nhận là bất biến — sửa sai bằng điều chỉnh tồn.
+- **Số thập phân**: tiền `numeric(18,2)`, giá vốn `numeric(18,4)`, số lượng `numeric(14,3)`; API truyền chuỗi; backend tính bằng `@base/server-kit/decimal.ts` (BigInt, half-up). Phân bổ chiết khấu: mỗi dòng làm tròn xuống, phần dư vào dòng cuối có thành tiền > 0. Frontend chỉ tính tổng **xem trước**.
+- **Mã chứng từ**: `PN-` (nhập), `DH-` (đơn bán), `DC-` (điều chỉnh) + ngày giờ VN + số thứ tự (`document_sequences`, `DocumentCodeService`).
+- **Quyền năng lực** (loại `CLIENT`, backend vẫn kiểm tra): `products.viewCost` (giá nhập / giá vốn / lợi nhuận dòng), `sales.viewAll` (thiếu → chỉ thấy đơn mình tạo, đơn khác trả 404), `sales.overridePrice`, `inventory.viewValue`.
+- **Báo cáo**: chỉ chứng từ `CONFIRMED`; doanh thu = Σ `net_amount`, giá vốn = Σ `cost_amount` lưu lúc chốt; ngày theo giờ VN (`businessDay()` trong `core/query-helpers.ts`, theo **ngày chốt đơn**); khoảng ≤ 366 ngày.
+- **Ảnh sản phẩm (MinIO)**: `POST /products/:id/images/upload-requests` → form POST ký sẵn (MinIO tự giới hạn key, Content-Type, 1..`PRODUCT_IMAGE_MAX_BYTES`) → trình duyệt tải thẳng lên MinIO → `POST …/complete` kiểm tra dung lượng + chữ ký file (JPEG/PNG/WebP) rồi mới gắn vào sản phẩm. Xem ảnh qua URL ký sẵn 15 phút (client ký với `MINIO_PUBLIC_URL`, gọi mạng qua `MINIO_ENDPOINT`). `StorageCleanupService` dọn mỗi giờ (khoá advisory, chỉ 1 instance chạy). Chưa cấu hình MinIO → API ảnh 503 `storage.unavailable`, phần còn lại vẫn chạy.
+- **Frontend**: admin — `features/{categories,products,suppliers,purchases,sales-orders,inventory,reports}`; user — `features/pos` (bán tại quầy, giỏ hàng lưu `sessionStorage`), `features/sales`; dùng chung — `@base/ui/src/commerce` (`formatMoney` VND theo locale, tag trạng thái, `ProductSelect`, `SalesOrderDetail`, `lineErrorsOf`). SDK: `@base/api-client/src/endpoints/commerce.ts` (`api.products.images.upload(...)` gói 3 bước tải ảnh).
+
 ## Bản đồ API
 
 Tất cả có tiền tố `/api/v1`. Quyền của từng API khai báo ở `PERMISSION_DEFINITIONS`; route không ghi quyền chỉ cần đăng nhập.
@@ -120,8 +137,16 @@ Tất cả có tiền tố `/api/v1`. Quyền của từng API khai báo ở `PE
 | `dashboard/` | `GET /dashboard/user-growth` |
 | `files/` | `GET /files/avatars/:name` (public) |
 | `health/` | `GET /health` (public) |
+| `categories/` | `GET/POST /categories`, `GET/PATCH/DELETE /categories/:id` |
+| `products/` | `GET/POST /products`, `GET/PATCH/DELETE /products/:id`, `POST /products/:id/images/upload-requests`, `POST /products/:id/images/:imageId/complete`, `PATCH/DELETE /products/:id/images/:imageId`, `PUT /products/:id/images/order` |
+| `suppliers/` | `GET/POST /suppliers`, `GET/PATCH/DELETE /suppliers/:id` |
+| `purchases/` | `GET/POST /purchases`, `GET/PATCH /purchases/:id`, `POST /purchases/:id/confirm`, `POST /purchases/:id/cancel` |
+| `sales/` | `GET/POST /sales-orders`, `GET/PATCH /sales-orders/:id`, `POST /sales-orders/:id/confirm`, `/pay`, `/cancel` |
+| `inventory/` | `GET /inventory`, `GET /inventory/summary`, `GET /inventory/movements`, `GET/POST /inventory/adjustments`, `GET /inventory/adjustments/:id` |
+| `reports/` | `GET /reports/sales/daily`, `/sales/monthly`, `/sales/by-product`, `/profit`, `/purchases`, `/inventory`, `/inventory-movements` |
+| `dashboard/` (bổ sung) | `GET /dashboard/sales-summary` |
 
-Module không có controller: `mail/` (gửi email), `email-verification/`, `login-history/`, `core/` (DB, rate limit, filter, interceptor, pipe).
+Module không có controller: `mail/` (gửi email), `email-verification/`, `login-history/`, `core/` (DB, rate limit, filter, interceptor, pipe), `storage/` (MinIO, dọn ảnh mồ côi).
 
 ## Đa ngôn ngữ
 
@@ -144,7 +169,7 @@ Module không có controller: `mail/` (gửi email), `email-verification/`, `log
 1. Schema bảng: `src/packages/db/src/schema/products.ts`, export trong `schema/index.ts`, chạy `pnpm db:generate` rồi `pnpm db:migrate`.
 2. Schema zod + DTO: `src/packages/shared/src/schemas/product.ts`, export trong `index.ts`.
 3. Permission: thêm các quyền `products.*` vào `PERMISSION_DEFINITIONS` (`PERMISSION_MODULES` tự sinh từ đó), thêm bản dịch `permissions.modules.products` và `permissions.items.products.*` — xem [permissions.md § 9](permissions.md#9-thêm-quyền-mới).
-4. Backend: `src/backends/api/src/products/` gồm `products.module.ts`, `products.controller.ts` (`@Controller('products')`), `products.service.ts`; thêm `ProductsModule` vào `imports` của `app.module.ts`.
+4. Backend: `src/backends/api/src/products/` gồm `products.module.ts`, `products.controller.ts` (`@Controller('products')`), `products.service.ts`; thêm `ProductsModule` vào `imports` của `app.module.ts`. Gắn `@ApiTags` + `@ApiZod*` / `@ApiErrors` cho Swagger; DTO response khai báo bằng schema zod ở `@base/shared` (`type XDto = z.infer<typeof xDtoSchema>`).
 5. SDK: thêm `src/packages/api-client/src/endpoints/products.ts`, đăng ký trong `createApi`.
 6. Admin: `src/frontends/admin/src/features/products/`, thêm route + menu + bản dịch.
 

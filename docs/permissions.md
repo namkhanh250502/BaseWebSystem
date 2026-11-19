@@ -35,7 +35,7 @@ export const PERMISSION_DEFINITIONS = [
 | --------- | ------- |
 | `key`     | Định danh cố định, dạng `<module>.<hành động>`. Là thứ **duy nhất** code dùng để kiểm tra quyền. Không sửa được ở admin. |
 | `module`  | Nhóm hiển thị (trang Quyền, drawer gán quyền cho role). |
-| `type`    | `SERVER` = quyền gắn với 1 API; `CLIENT` = quyền giao diện, không gắn API (vd. `admin.access`). |
+| `type`    | `SERVER` = quyền gắn với 1 API; `CLIENT` = quyền không gắn 1 API: quyền giao diện (vd. `admin.access`) hoặc **quyền năng lực** mà service backend kiểm tra để ẩn trường / giới hạn phạm vi dữ liệu (vd. `products.viewCost`, `sales.viewAll`, `sales.overridePrice`, `inventory.viewValue`). |
 | `method` / `apiPath` | API tương ứng (helper `api()` tự thêm tiền tố `/api/v1`). Chỉ để **mô tả / hiển thị**, xem mục 6. |
 
 Từ mảng này, file export thêm các giá trị dẫn xuất (không cần sửa tay):
@@ -143,6 +143,29 @@ Các ràng buộc nghiệp vụ hiện có:
 - Gửi `adminAccess` cần thêm quyền `roles.assignPermissions` (ngoài `roles.create` / `roles.update`), thiếu → `403 roles.adminAccessForbidden` (`roles.controller.ts`). Form admin chỉ gửi trường này khi người dùng có quyền đó và (khi sửa) giá trị thực sự thay đổi, nên sửa tên/mô tả không bị chặn.
 - Bật cờ khi `admin.access` chưa được đồng bộ vào DB → `400 roles.adminPermissionMissing`; tắt thì bỏ qua.
 - Bỏ tick `admin.access` trong drawer **Phân quyền** cũng tắt cờ (và ngược lại) — hai nơi cùng sửa một dữ liệu. Hiện không chặn tắt cờ trên role hệ thống `Administrator`.
+
+### 5.5 Quyền năng lực trong nghiệp vụ bán hàng
+
+Một số quyền không ứng với API riêng mà quyết định **dữ liệu nào được trả / thao tác nào được phép** trong API đã có. Service kiểm tra bằng `principal.can(...)`, không chỉ ẩn ở giao diện:
+
+| Key                   | Hiệu lực ở backend                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `products.viewCost`   | Thiếu → DTO sản phẩm / đơn bán không có `purchasePrice`, `avgCost`, `unitCost`, `costAmount`, `totalCost`          |
+| `sales.viewAll`       | Thiếu → danh sách đơn bán chỉ gồm đơn mình tạo; đơn người khác trả 404; không thanh toán / huỷ được đơn người khác |
+| `sales.overridePrice` | Thiếu → dòng đơn có giá khác giá niêm yết bị từ chối 403 `sales.priceOverrideForbidden`                            |
+| `inventory.viewValue` | Thiếu → tồn kho, sổ biến động, báo cáo tồn không có giá vốn / giá trị                                              |
+
+Huỷ đơn bán: `@RequirePermission('sales.cancel', 'sales.update')` cho vào API; service chỉ cho huỷ đơn **đã chốt** khi có `sales.cancel` (403 `sales.cancelForbidden`), đơn nháp thì người tạo huỷ được bằng `sales.update`.
+
+### 5.6 Vai trò mặc định Manager / Staff
+
+`pnpm db:seed` (và setup DB test) gọi `ensureBusinessRoles` (`src/packages/db/src/business-roles.ts`): tạo vai trò hệ thống **Manager** và **Staff** nếu chưa có và gán bộ quyền mặc định `DEFAULT_ROLE_PERMISSIONS` (`src/packages/shared/src/constants/permissions.ts`) **chỉ khi vừa tạo** — quyền admin chỉnh sau đó không bị seed ghi đè. Administrator vẫn tự nhận mọi quyền mới. Ma trận đầy đủ: [contracts/permissions.md](../specs/001-sales-inventory-mvp/contracts/permissions.md).
+
+| Vai trò       | Phạm vi                                                                                                                                                                                        |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Administrator | Mọi quyền                                                                                                                                                                                      |
+| Manager       | `admin.access`, dashboard bán hàng, toàn bộ danh mục / sản phẩm / nhà cung cấp / nhập hàng / bán hàng / tồn kho / báo cáo (gồm giá vốn, xem mọi đơn, sửa giá, huỷ đơn đã chốt, điều chỉnh tồn) |
+| Staff         | Xem danh mục, sản phẩm, tồn, sổ biến động; tạo / sửa nháp / chốt / thanh toán đơn bán của mình. Không vào trang admin, không thấy giá vốn                                                      |
 
 ## 6. Key, method và URL: cái nào thật sự được kiểm tra?
 

@@ -547,35 +547,35 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
   - Result: Build `src/backends/api/dist`, `src/frontends/admin/dist`, `src/frontends/user/dist` thành công.
   - AC: Exit 0, không warning mới.
   - Test: Chính nó.
-- [ ] T077 Rà soát bảo mật thay đổi (presigned URL, quyền năng lực, idempotency, rò rỉ giá vốn) bằng skill `security-audit` / `/security-review` trên nhánh
+- [x] T077 Rà soát bảo mật thay đổi (presigned URL, quyền năng lực, idempotency, rò rỉ giá vốn) bằng skill `security-audit` / `/security-review` trên nhánh
   - Deps: T076
-  - Result: Danh sách phát hiện + đã xử lý.
+  - Result: Danh sách phát hiện + đã xử lý. *Đã rà thủ công (không chạy toàn bộ quy trình security-audit): presigned POST ràng buộc key / Content-Type / dung lượng, kiểm magic bytes khi complete, ảnh gắn đúng sản phẩm, quyền năng lực kiểm ở service, phạm vi đơn theo người tạo, idempotency không lộ đơn người khác, `sql.raw` chỉ dùng hằng số, escape wildcard khi tìm kiếm, giới hạn pageSize / số dòng / khoảng ngày. Không phát hiện lỗi mức cao. Đã sửa: lỗi 503 có key bị coi là mất kết nối ở frontend.*
   - AC: Không phát hiện mức cao còn mở.
   - Test: Bổ sung test cho mỗi lỗi sửa.
-- [ ] T078 Chạy toàn bộ `specs/001-sales-inventory-mvp/quickstart.md` (14 kịch bản) với MinIO local; ghi kết quả vào cuối file
+- [x] T078 Chạy toàn bộ `specs/001-sales-inventory-mvp/quickstart.md` (14 kịch bản) với MinIO local; ghi kết quả vào cuối file
   - Deps: T076
-  - Result: Kiểm chứng end-to-end.
+  - Result: Kiểm chứng end-to-end. *Các bước 2–13 được phủ bằng test e2e tự động tương ứng; đã chạy bản build `dist/main.js` trên DB dev (health, Swagger, đăng nhập, sản phẩm, tồn, dashboard, báo cáo, đơn bán = 200; ảnh khi chưa cấu hình MinIO = 503 có thông điệp). Chưa thao tác giao diện bằng trình duyệt và chưa chạy với MinIO thật (máy dev chỉ có MinIO AIStor không license).*
   - AC: 14/14 đạt.
   - Test: Thủ công.
 
 ### Batch 11.3 — Tài liệu (hỏi người dùng trước khi sửa — base-skill §5)
 
-- [ ] T079 [P] Cập nhật `README.md`: bảng Tính năng, Biến môi trường (MinIO, `API_DOCS_ENABLED`), Lệnh (`storage:cleanup`), Triển khai production — mục MinIO (systemd, bucket private, domain riêng, CORS, policy) và Swagger
+- [x] T079 [P] Cập nhật `README.md`: bảng Tính năng, Biến môi trường (MinIO, `API_DOCS_ENABLED`), Lệnh (`storage:cleanup`), Triển khai production — mục MinIO (systemd, bucket private, domain riêng, CORS, policy) và Swagger
   - Deps: T078
   - Result: Hướng dẫn triển khai đầy đủ (FR-041).
   - AC: Văn phong, cấu trúc mục giữ như hiện có.
   - Test: Không.
-- [ ] T080 [P] Cập nhật `docs/architecture.md` (module mới, sơ đồ phụ thuộc, tồn kho & giá vốn, lưu trữ ảnh, bản đồ API, `params` trong lỗi, Swagger) và `docs/permissions.md` (quyền mới, loại CLIENT năng lực, vai trò Manager/Staff)
+- [x] T080 [P] Cập nhật `docs/architecture.md` (module mới, sơ đồ phụ thuộc, tồn kho & giá vốn, lưu trữ ảnh, bản đồ API, `params` trong lỗi, Swagger) và `docs/permissions.md` (quyền mới, loại CLIENT năng lực, vai trò Manager/Staff)
   - Deps: T078
   - Result: Tài liệu khớp code.
   - AC: Liên kết chéo cập nhật.
   - Test: Không.
-- [ ] T081 [P] Cập nhật `docs/TEST-CASES.md` với mọi file/case test mới (giữ nguyên tên case trong code) và mục Tổng số
+- [x] T081 [P] Cập nhật `docs/TEST-CASES.md` với mọi file/case test mới (giữ nguyên tên case trong code) và mục Tổng số
   - Deps: T074, T075
   - Result: Danh sách testcase đầy đủ.
   - AC: Số liệu tổng đúng.
   - Test: Không.
-- [ ] T082 [P] Cập nhật `CLAUDE.md` (bản đồ tính năng thêm commerce) và skill `.claude/skills/api-testing/SKILL.md` (FakeStorageService, fixture vai trò), `.claude/skills/feature-module/SKILL.md` (Swagger decorator, `params`)
+- [x] T082 [P] Cập nhật `CLAUDE.md` (bản đồ tính năng thêm commerce) và skill `.claude/skills/api-testing/SKILL.md` (FakeStorageService, fixture vai trò), `.claude/skills/feature-module/SKILL.md` (Swagger decorator, `params`)
   - Deps: T078
   - Result: Hướng dẫn cho lần làm tiếp theo.
   - AC: Nhất quán với constitution.

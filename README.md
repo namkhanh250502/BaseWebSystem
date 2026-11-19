@@ -11,7 +11,10 @@ Monorepo khung cho hệ thống quản lý: backend **NestJS** (chỉ API), 2 fr
 | Quên / đặt lại mật khẩu | Có | Có |
 | Tài khoản | Họ, tên, avatar, xác minh email, đổi mật khẩu, quản lý 2FA (nhiều phương thức, nhiều passkey, phương thức mặc định) | Như admin |
 | Lịch sử đăng nhập | Của chính mình (trang tài khoản) + xem của từng người dùng (modal thông tin, quyền `users.loginHistory`) | Của chính mình: thời gian, thiết bị, IP, vị trí |
+| Bán hàng & tồn kho | Danh mục, sản phẩm (SKU, giá, tồn tối thiểu, **ảnh trên MinIO**), nhà cung cấp, phiếu nhập (nháp → xác nhận cộng tồn), đơn bán (xem, thanh toán, huỷ cộng lại tồn), tồn kho + sổ biến động + điều chỉnh / kiểm kê, báo cáo doanh thu – giá vốn – lợi nhuận gộp, nhập hàng, nhập–xuất–tồn, dashboard bán hàng | **Bán tại quầy** (`/pos`: tìm tên/SKU, giỏ hàng, chốt đơn, lưu nháp), lịch sử & chi tiết đơn — chỉ hiện với tài khoản có quyền bán hàng |
 | Khác | Dashboard (biểu đồ người dùng mới theo tháng), quản lý người dùng (sửa tại chỗ, đặt lại mật khẩu, tắt 2FA giúp), vai trò & phân quyền (sao chép vai trò kèm toàn bộ quyền), quyền theo API (xem/sửa URL, đồng bộ), cài đặt hệ thống (form sinh tự động từ API, import/export JSON), thông báo (chuông + trang danh sách) | Trang chủ, thông báo (chuông + trang danh sách) |
+
+Bán hàng & tồn kho (một kho): mọi thay đổi tồn đi qua sổ biến động, không bao giờ âm kể cả khi nhiều đơn chốt cùng lúc; giá vốn **bình quân gia quyền di động**, lưu trên từng dòng đơn lúc chốt để báo cáo lợi nhuận theo giá vốn lịch sử. Tiền / số lượng tính bằng số thập phân chính xác (không qua số thực). Vai trò mặc định: **Administrator** (toàn quyền), **Manager** (quản lý cửa hàng, vào được trang admin), **Staff** (chỉ bán tại quầy ở trang user). Đặc tả, thiết kế và danh sách task: [specs/001-sales-inventory-mvp](specs/001-sales-inventory-mvp/).
 
 Lịch sử đăng nhập chỉ giữ **10 lần gần nhất** của mỗi người dùng (`LOGIN_HISTORY_LIMIT`). Thông báo hệ thống (chào mừng, đổi mật khẩu, thay đổi 2FA) tự gửi theo ngôn ngữ của người dùng; Cả 2 app đều có chuông thông báo trên header (badge chưa đọc, lọc Tất cả / Chưa đọc) và trang `/notifications`. API gửi thông báo từ admin (`POST /notifications`) đã có nhưng trang admin chưa có giao diện gửi.
 
@@ -97,13 +100,15 @@ pnpm dev          # chạy api + user + admin
 
 Danh sách đầy đủ, chú thích và giá trị mặc định nằm trong `.env.example` cùng thư mục. Biến đặt sẵn trong môi trường (systemd, shell) luôn được ưu tiên hơn giá trị trong file.
 
-Biến môi trường chỉ chứa cấu hình hạ tầng (database, cổng, secret, URL app, thư mục upload, Redis). Các cấu hình vận hành — SMTP/Sendify, Google OAuth, Cloudflare Turnstile, tên site, cho phép đăng ký, bắt buộc 2FA… — **không nằm trong `.env`** mà lưu ở bảng `settings` của database, sửa trực tiếp ở trang Admin (xem [docs/settings.md](docs/settings.md)).
+Biến môi trường chỉ chứa cấu hình hạ tầng (database, cổng, secret, URL app, thư mục upload, Redis, kho ảnh MinIO, bật tài liệu API). Các cấu hình vận hành — SMTP/Sendify, Google OAuth, Cloudflare Turnstile, tên site, cho phép đăng ký, bắt buộc 2FA… — **không nằm trong `.env`** mà lưu ở bảng `settings` của database, sửa trực tiếp ở trang Admin (xem [docs/settings.md](docs/settings.md)).
 
 Cấu hình ở trang **Admin → Cài đặt**:
 
 - **Email**: mã xác minh email và link đặt lại mật khẩu gửi qua **Sendify** (`sendify_*`, theo template) nếu đã cấu hình, nếu không thì qua SMTP (`smtp_*`). Chưa cấu hình gì thì nội dung email (kèm mã) được ghi ra log của API.
 - **Đăng nhập Google**: điền `google_client_id` / `google_client_secret` (OAuth client loại *Web application*). Redirect URI cần khai báo trên Google: `<URL trang user>/api/v1/auth/google/callback` (ví dụ `http://localhost:5173/api/v1/auth/google/callback`). Frontend gọi API qua proxy cùng domain nên callback đi qua domain của app.
 - **Bắt buộc xác minh email** (`require_email_verification`): bật thì mã được gửi ngay khi đăng ký, tài khoản chưa xác minh chỉ thấy màn hình nhập mã.
+- **Ảnh sản phẩm (MinIO / S3)**: đặt đủ `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY` (và `MINIO_PUBLIC_URL` nếu trình duyệt truy cập MinIO qua địa chỉ khác) trong `src/backends/api/.env`. Bỏ trống cả 3 thì chức năng ảnh tắt (API ảnh trả 503 `storage.unavailable`), mọi chức năng khác vẫn chạy. Dev: chạy MinIO local cổng 9000, API tự tạo bucket khi khởi động (xem [quickstart](specs/001-sales-inventory-mvp/quickstart.md)). Lưu ý: bản cài `minio` mới qua Homebrew có thể là **MinIO AIStor** (cần license, không có license thì từ chối mọi thao tác S3) — dùng bản MinIO community hoặc dịch vụ S3-compatible khác.
+- **Tài liệu API (Swagger)**: `http://localhost:4000/api/docs` (JSON: `/api/docs-json`), bật mặc định ngoài production, đổi bằng `API_DOCS_ENABLED`.
 
 ## Lệnh thường dùng
 
@@ -119,7 +124,7 @@ Cấu hình ở trang **Admin → Cài đặt**:
 | `pnpm check` | Lint + typecheck + build (chạy trước khi commit) |
 | `pnpm db:generate` | Sinh migration sau khi sửa schema trong `src/packages/db/src/schema` |
 | `pnpm db:migrate` | Áp dụng migration |
-| `pnpm db:seed` | Seed lại (chạy nhiều lần không sao); `pnpm db:seed -- --prune` xoá thêm permission không còn trong code |
+| `pnpm db:seed` | Seed lại (chạy nhiều lần không sao; tạo vai trò Manager / Staff nếu chưa có, không ghi đè quyền đã chỉnh); `pnpm db:seed -- --prune` xoá thêm permission không còn trong code |
 | `pnpm db:studio` | Mở Drizzle Studio xem dữ liệu |
 
 ## Triển khai production (Cloudflare)
@@ -210,6 +215,26 @@ WantedBy=multi-user.target
 ```bash
 sudo systemctl enable --now base-web-api
 ```
+
+### 3b. MinIO (ảnh sản phẩm)
+
+Ảnh sản phẩm lưu trên MinIO (hoặc dịch vụ S3-compatible bất kỳ), bucket **private**; trình duyệt tải lên / xem ảnh bằng URL ký sẵn có hạn, access key / secret chỉ nằm ở server.
+
+1. Cài MinIO server (bản community, binary + systemd) với thư mục dữ liệu riêng, ví dụ `/var/lib/minio`, chỉ nghe `127.0.0.1:9000`.
+2. Tạo bucket `products` (private) và một user / access key riêng cho API, policy chỉ `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`, `s3:ListBucket` trên bucket đó (`mc mb`, `mc admin user add`, `mc admin policy attach`).
+3. Cấu hình CORS của MinIO cho phép `https://app.example.com` và `https://admin.example.com` (method `POST`, `GET`).
+4. Domain riêng cho ảnh, ví dụ `files.example.com` → Cloudflare (Tunnel hoặc Proxied) → nginx `server { server_name files.example.com; location / { proxy_pass http://127.0.0.1:9000; proxy_set_header Host $host; client_max_body_size 6m; } }`. **Giữ nguyên `Host` và đường dẫn**: chữ ký URL phụ thuộc host + path, nên không đặt MinIO dưới đường dẫn con của domain app.
+5. Thêm vào `/etc/base-web/api.env`:
+
+   ```ini
+   MINIO_ENDPOINT=http://127.0.0.1:9000
+   MINIO_PUBLIC_URL=https://files.example.com
+   MINIO_ACCESS_KEY=<access key của API>
+   MINIO_SECRET_KEY=<secret key của API>
+   MINIO_BUCKET=products
+   ```
+
+API tự dọn ảnh mồ côi mỗi giờ (tải dở quá hạn, ảnh đã xoá, object không còn bản ghi > 24 giờ). Tài liệu API (Swagger) tắt mặc định ở production; nếu bật (`API_DOCS_ENABLED=true`) thì nên chặn bằng Cloudflare Access.
 
 ### 4. nginx
 
@@ -310,4 +335,5 @@ Redirect URI khai báo trên Google Cloud Console: `https://app.example.com/api/
 - `https://app.example.com/api/v1/health` trả về `"database": "up"` (làm tương tự với `admin.example.com`).
 - Đăng nhập, vào **Tài khoản → Lịch sử đăng nhập**: IP phải trùng dòng `ip=` ở `https://app.example.com/cdn-cgi/trace`, và có tên thành phố.
 - Từ một máy khác, gọi thẳng IP server (`curl -m 5 http://<IP server>`) phải bị từ chối hoặc hết thời gian chờ.
+- Vào **Admin → Sản phẩm**, tải một ảnh lên: ảnh hiển thị, log API không có _"MinIO chưa cấu hình"_ hay _"MinIO: lỗi"_.
 - Log API (`journalctl -u base-web-api`) không có cảnh báo về `cf-ipcity`, có dòng *"Rate limit: đã kết nối Redis"* và không có lỗi *"không gọi được Redis"*.

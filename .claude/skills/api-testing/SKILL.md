@@ -31,6 +31,9 @@ description: Cách viết và chạy test tự động trong BaseWebSystem — t
 | `t.mail.last('verificationCode' \| 'resetPassword' \| 'twoFactorCode', email)`                                         | Đọc mã/link email đã "gửi"                                                                                                                                                                       |
 | `totpCode(secret)`, `wrongTotpCode(secret)`, `enableTotp`, `enableEmail`, `addPasskey`, `reauthWithTotp`, `startLogin` | Luồng 2FA dựng sẵn (`fixtures.ts`, `flows.ts`)                                                                                                                                                   |
 | `SoftAuthenticator` (`webauthn.ts`)                                                                                    | Authenticator ES256 offline cho passkey                                                                                                                                                          |
+| `createUser(t.db, { role: 'Manager' \| 'Staff' })`, `signedInClient(t, { role }, app)`                                 | User theo vai trò nghiệp vụ (seed tạo sẵn Manager / Staff)                                                                                                                                       |
+| `t.storage` (`FakeStorageService`, `fake-storage.ts`)                                                                  | MinIO giả trong bộ nhớ: `upload(key, bytes)` giả lập trình duyệt tải lên, `enabled = false` giả lập MinIO tắt, `failRemove` giả lập lỗi xoá; `SAMPLE_IMAGES` có chữ ký JPEG/PNG/WebP             |
+| `createProduct`, `createCategory`, `stockIn`, `getBalance`, `ledgerSum`, `ledgerMismatches` (`commerce.ts`)            | Dựng dữ liệu bán hàng / tồn kho thẳng trong DB; `ledgerMismatches(t)` rỗng = Σ sổ cái khớp tồn                                                                                                   |
 
 ## Khung test e2e
 
@@ -77,7 +80,10 @@ Quy ước:
 - Đổi setting trong test qua `t.setSetting(...)` (xoá cache) và **trả lại giá trị cũ** trong `afterAll`/`finally` để không ảnh hưởng file khác.
 - Kiểm tra side effect trong DB bằng `t.db` khi API không trả đủ (vd. token chỉ lưu hash).
 - Không gọi dịch vụ ngoài: mail đã fake; IP test dải `10.x` nên không tra vị trí.
-- Service mới gọi dịch vụ ngoài → thêm `.overrideProvider(...)` trong `createTestApp` theo mẫu `MailService`.
+- Service mới gọi dịch vụ ngoài → thêm `.overrideProvider(...)` trong `createTestApp` theo mẫu `MailService` / `StorageService`.
+- Nghiệp vụ tồn kho: luôn kiểm cả ca **đồng thời** (`Promise.all` nhiều request) và kết thúc file bằng `expect(await ledgerMismatches(t)).toEqual([])`.
+- API mới: thêm dòng vào ma trận `test/commerce.permissions.matrix.test.ts` (test đó đọc OpenAPI và báo route chưa có trong ma trận).
+- `createTestApp({ apiDocs: true })` khi cần đọc `/api/docs-json`.
 - Riêng file helper được phép `any` cho JSON động (đã có sẵn); trong test thường thì dùng kiểu cụ thể hoặc ép kiểu tối thiểu.
 
 ## Unit test

@@ -123,6 +123,15 @@ export class ProductsController {
 - Service: `constructor(@InjectDb() private readonly db: Database)`. `list` trả `{ items, meta: { page, pageSize, total } }` (chạy query dữ liệu và `count()` song song bằng `Promise.all`, search bằng `ilike`, sort theo `sortBy`/`sortOrder`). Map entity → DTO trong service (ngày `.toISOString()`). Thao tác nhiều bảng dùng `this.db.transaction(async (tx) => …)`, hàm phụ nhận `DbOrTx`.
 - Lỗi: `throw notFound('products.notFound')`, `conflict('products.nameExists', { name })` → thêm key vào `src/backends/api/src/i18n/vi.ts` **và** `en.ts`. Trường unique: kiểm tra trùng trước khi insert/update và ném `conflict(...)` (như `roles.service.ts`), đừng để lỗi unique của Postgres thành 500.
 
+### Swagger, DTO response, lỗi có tham số
+
+- Gắn `@ApiTags('<module>')`, `@ApiErrors(401, 403)` ở controller; mỗi handler `@ApiZodQuery/@ApiZodBody(schema)`, `@ApiZodResponse(dtoSchema, { paginated?, status? })`, `@ApiErrors(...)` (`src/backends/api/src/decorators/api-docs.ts`) — dùng **cùng schema zod** với `@ZodBody/@ZodQuery`.
+- DTO response: khai báo `xDtoSchema` bằng zod trong `@base/shared`, `export type XDto = z.infer<typeof xDtoSchema>`.
+- Schema sửa (`PATCH`): khai báo trường không default rồi `z.object(fields).partial()`; schema tạo thêm `.default(...)` riêng (zod 4 `.partial()` vẫn áp default → PATCH ghi đè).
+- Lỗi cần frontend gắn đúng dòng: `conflict(key, params, details)` / `unprocessable(key, params, details)` — body lỗi trả `params` + `details`.
+- Danh sách có tìm kiếm: `ilike(col, containsPattern(search))` (`core/query-helpers.ts`, escape `%`/`_`); lọc theo ngày nghiệp vụ dùng `businessDay(col)`.
+- Nghiệp vụ có tiền / số lượng: `numeric` + `decimal.ts`; thay đổi tồn kho chỉ qua `InventoryService.apply` (xem `docs/architecture.md` § Bán hàng & tồn kho).
+
 ## 5. SDK — `src/packages/api-client/src/endpoints/products.ts`
 
 ```ts

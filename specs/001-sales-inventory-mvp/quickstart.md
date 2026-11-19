@@ -10,7 +10,7 @@ Hướng dẫn chạy và kiểm tra end-to-end sau khi triển khai. Chi tiết
    # macOS: brew install minio/stable/minio
    minio server ~/minio-data --address :9000 --console-address :9001
    ```
-   Tạo access key cho API trong console `http://localhost:9001` (hoặc dùng tài khoản root khi dev).
+   Tạo access key cho API trong console `http://localhost:9001` (hoặc dùng tài khoản root khi dev). Lưu ý: binary `minio` mới có thể là **AIStor** (cần license — không có license thì mọi thao tác S3 bị từ chối); dùng bản MinIO community.
 3. Thêm vào `src/backends/api/.env` (xem `.env.example`):
    ```ini
    MINIO_ENDPOINT=http://localhost:9000
