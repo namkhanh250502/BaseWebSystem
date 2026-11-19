@@ -472,19 +472,19 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 9.5 — App user: bán hàng (US4, US5)
 
-- [ ] T065 [US4] Màn hình bán tại quầy `/pos`: tìm sản phẩm (debounce 300 ms), giỏ hàng (khôi phục `sessionStorage`), chỉnh SL/giá (khi `sales.overridePrice`)/chiết khấu, khách, phương thức, "Đã thanh toán", Chốt đơn (`confirm: true`, `clientRequestId` 1 lần/giỏ) và Lưu nháp; mở lại nháp `?draft=:id` trong `src/frontends/user/src/features/pos/`
+- [x] T065 [US4] Màn hình bán tại quầy `/pos`: tìm sản phẩm (debounce 300 ms), giỏ hàng (khôi phục `sessionStorage`), chỉnh SL/giá (khi `sales.overridePrice`)/chiết khấu, khách, phương thức, "Đã thanh toán", Chốt đơn (`confirm: true`, `clientRequestId` 1 lần/giỏ) và Lưu nháp; mở lại nháp `?draft=:id` trong `src/frontends/user/src/features/pos/`
   - Deps: T053, T054, T055
   - Result: US4 trên giao diện; responsive mobile (`useIsMobile`).
   - AC: Thiếu hàng đánh dấu đúng dòng; bấm Chốt 2 lần không tạo 2 đơn.
   - Test: Lint + typecheck; quickstart bước 6–7.
-- [ ] T066 [US5] Lịch sử đơn `/sales` (mặc định hôm nay, đơn của mình) và chi tiết `/sales/:id` trong `src/frontends/user/src/features/sales/`
+- [x] T066 [US5] Lịch sử đơn `/sales` (mặc định hôm nay, đơn của mình) và chi tiết `/sales/:id` trong `src/frontends/user/src/features/sales/`
   - Deps: T054
   - Result: US5 trên giao diện.
   - AC: Không hiển thị giá vốn.
   - Test: Lint + typecheck.
-- [ ] T067 [US8] Tích hợp quyền app user: nhóm menu "Bán hàng" chỉ khi `can('sales.create')`, route bọc `RequirePermission`, chuyển hướng tới `/pos` sau đăng nhập khi có quyền bán hàng (giữ trang chủ cho người khác) trong `src/frontends/user/src/app/router.tsx`, `src/frontends/user/src/app/UserLayout.tsx`
+- [x] T067 [US8] Tích hợp quyền app user: nhóm menu "Bán hàng" chỉ khi `can('sales.create')`, route bọc `RequirePermission`, chuyển hướng tới `/pos` sau đăng nhập khi có quyền bán hàng (giữ trang chủ cho người khác) trong `src/frontends/user/src/app/router.tsx`, `src/frontends/user/src/app/UserLayout.tsx`
   - Deps: T065, T066
-  - Result: SC-010.
+  - Result: SC-010. *Không tự chuyển hướng sang `/pos` (để trang chủ vẫn vào được); thay bằng thẻ "Bán hàng" trên trang chủ cho người có quyền.*
   - AC: Tài khoản tự đăng ký không thấy menu, gõ URL `/pos` → 403 page.
   - Test: Lint + typecheck; quickstart bước 9.
 

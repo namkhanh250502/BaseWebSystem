@@ -1,4 +1,9 @@
-import { BellOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  BellOutlined,
+  SafetyCertificateOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { displayName, PageHeader, useAuth, useUnreadCount } from '@base/ui';
 import { Card, Col, Row, Statistic, Typography } from 'antd';
 import type { ReactNode } from 'react';
@@ -29,7 +34,7 @@ function ActionCard({
 
 export function HomePage() {
   const { t } = useTranslation('home');
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const unread = useUnreadCount();
   if (!user) return null;
 
@@ -37,13 +42,24 @@ export function HomePage() {
     <div className="b-page">
       <PageHeader title={t('welcome', { name: displayName(user) })} subtitle={t('subtitle')} />
       <Row gutter={[16, 16]}>
+        {can('sales.create') && (
+          <Col xs={24} md={8}>
+            <ActionCard icon={<ShoppingCartOutlined />} title={t('posCard')} to="/pos">
+              <Typography.Text type="secondary">{t('posCardDescription')}</Typography.Text>
+            </ActionCard>
+          </Col>
+        )}
         <Col xs={24} md={8}>
           <ActionCard icon={<UserOutlined />} title={t('profileCard')} to="/profile">
             <Typography.Text type="secondary">{t('profileCardDescription')}</Typography.Text>
           </ActionCard>
         </Col>
         <Col xs={24} md={8}>
-          <ActionCard icon={<SafetyCertificateOutlined />} title={t('securityCard')} to="/profile?tab=security">
+          <ActionCard
+            icon={<SafetyCertificateOutlined />}
+            title={t('securityCard')}
+            to="/profile?tab=security"
+          >
             <Typography.Text type="secondary">
               {user.twoFactorEnabled ? t('securityCardOn') : t('securityCardOff')}
             </Typography.Text>
