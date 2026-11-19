@@ -114,7 +114,7 @@ Quy tắc:
 
 ## Dashboard & báo cáo — `dashboard/` (có sẵn), `reports/`
 
-Mọi báo cáo nhận `dateFrom`, `dateTo` (bắt buộc, khoảng ≤ 366 ngày → `422 reports.rangeTooLarge`), tuỳ báo cáo thêm `productId`, `categoryId`, `supplierId`. Ngày theo giờ VN. Chỉ tính chứng từ `CONFIRMED`.
+Doanh thu / giá vốn tính theo **ngày chốt đơn** (`confirmed_at`, giờ VN); nhập hàng theo `receipt_date`. Mọi báo cáo nhận `dateFrom`, `dateTo` (bắt buộc, khoảng ≤ 366 ngày → `422 reports.rangeTooLarge`), tuỳ báo cáo thêm `productId`, `categoryId`, `supplierId`. Ngày theo giờ VN. Chỉ tính chứng từ `CONFIRMED`.
 
 | Method | URL | Quyền | Response |
 | --- | --- | --- | --- |

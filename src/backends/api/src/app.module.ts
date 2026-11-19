@@ -11,6 +11,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { ProductsModule } from './products/products.module';
 import { PurchasesModule } from './purchases/purchases.module';
+import { ReportsModule } from './reports/reports.module';
 import { RolesModule } from './roles/roles.module';
 import { SalesModule } from './sales/sales.module';
 import { SettingsModule } from './settings/settings.module';
@@ -38,6 +39,7 @@ import { UsersModule } from './users/users.module';
     SuppliersModule,
     PurchasesModule,
     SalesModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}

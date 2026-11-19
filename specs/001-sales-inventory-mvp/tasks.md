@@ -371,22 +371,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 **Independent test**: US7 #1–#6 với bộ dữ liệu cố định; quickstart bước 12.
 
-- [ ] T049 [US7] Tạo `ReportsModule` + `ReportsQueryService` (lọc ngày theo giờ VN, khoảng ≤ 366 ngày, chỉ CONFIRMED) với `/reports/sales/daily`, `/reports/sales/monthly` trong `src/backends/api/src/reports/`; đăng ký `app.module.ts`; key lỗi `reports.rangeTooLarge`
+- [x] T049 [US7] Tạo `ReportsModule` + `ReportsQueryService` (lọc ngày theo giờ VN, khoảng ≤ 366 ngày, chỉ CONFIRMED) với `/reports/sales/daily`, `/reports/sales/monthly` trong `src/backends/api/src/reports/`; đăng ký `app.module.ts`; key lỗi `reports.rangeTooLarge`
   - Deps: T040, T043
   - Result: Theo `contracts/rest-api.md` § Dashboard & báo cáo.
   - AC: Đơn huỷ không tính; ranh giới 23:59/00:00 giờ VN đúng.
   - Test: `src/backends/api/test/reports.test.ts`: đơn lúc 23:30 VN ngày D tính vào D; khoảng 400 ngày → 422.
-- [ ] T050 [P] [US7] `/reports/sales/by-product` (sort quantity/revenue/grossProfit, limit → bán chạy) và `/reports/profit` (revenue, discounts, netRevenue, COGS, grossProfit, marginPct, byDay) trong `src/backends/api/src/reports/reports-query.service.ts`, `reports.controller.ts`
+- [x] T050 [P] [US7] `/reports/sales/by-product` (sort quantity/revenue/grossProfit, limit → bán chạy) và `/reports/profit` (revenue, discounts, netRevenue, COGS, grossProfit, marginPct, byDay) trong `src/backends/api/src/reports/reports-query.service.ts`, `reports.controller.ts`
   - Deps: T049
   - Result: FR-032 — giá vốn từ `sales_order_items.cost_amount`, doanh thu từ `sales_order_items.net_amount`.
   - AC: US7 #1, #2, #3.
   - Test: `reports.test.ts`: nhập 10×100k + 10×120k, bán 5 → COGS 550k; sửa giá nhập sản phẩm sau đó → báo cáo không đổi; lọc danh mục.
-- [ ] T051 [P] [US7] `/reports/purchases` (lọc nhà cung cấp, sản phẩm), `/reports/inventory` (đầu kỳ/nhập/xuất/cuối kỳ từ sổ cái tới `dateTo`), `/reports/inventory-movements` trong `src/backends/api/src/reports/reports-query.service.ts`, `reports.controller.ts`
+- [x] T051 [P] [US7] `/reports/purchases` (lọc nhà cung cấp, sản phẩm), `/reports/inventory` (đầu kỳ/nhập/xuất/cuối kỳ từ sổ cái tới `dateTo`), `/reports/inventory-movements` trong `src/backends/api/src/reports/reports-query.service.ts`, `reports.controller.ts`
   - Deps: T049
   - Result: FR-031 phần nhập/tồn.
-  - AC: Tồn cuối kỳ tại hôm nay = tồn hiện tại.
+  - AC: Tồn cuối kỳ tại hôm nay = tồn hiện tại. *`/reports/purchases` trả `{ rows, totals }` không phân trang, tối đa 1000 phiếu (khoảng ≤ 366 ngày).*
   - Test: `reports.test.ts`: tồn đầu + nhập − xuất = cuối kỳ.
-- [ ] T052 [US7] `GET /dashboard/sales-summary` trong `src/backends/api/src/dashboard/dashboard.controller.ts`, `dashboard.service.ts` (import `ReportsModule` ở `dashboard.module.ts`)
+- [x] T052 [US7] `GET /dashboard/sales-summary` trong `src/backends/api/src/dashboard/dashboard.controller.ts`, `dashboard.service.ts` (import `ReportsModule` ở `dashboard.module.ts`)
   - Deps: T045, T049
   - Result: FR-030; route user-growth hiện có giữ nguyên.
   - AC: "Hôm nay" theo giờ VN; Staff → 403.

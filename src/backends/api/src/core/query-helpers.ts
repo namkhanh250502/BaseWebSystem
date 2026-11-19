@@ -48,7 +48,14 @@ export function isUniqueViolation(error: unknown): boolean {
   return (pg.cause?.code ?? pg.code) === '23505';
 }
 
+/**
+ * Múi giờ chèn thẳng vào SQL (hằng số trong code, không phải dữ liệu người dùng): nếu truyền
+ * thành tham số, mỗi lần xuất hiện là một `$n` khác nhau và PostgreSQL coi biểu thức trong
+ * SELECT / GROUP BY là khác nhau.
+ */
+const TIME_ZONE_SQL = sql.raw(`'${BUSINESS_TIME_ZONE}'`);
+
 /** Ngày (giờ Việt Nam) của cột timestamptz — lọc / nhóm theo ngày nghiệp vụ (FR-033) */
 export function businessDay(column: AnyPgColumn | SQL): SQL<string> {
-  return sql<string>`(${column} at time zone ${BUSINESS_TIME_ZONE})::date`;
+  return sql<string>`(${column} at time zone ${TIME_ZONE_SQL})::date`;
 }
