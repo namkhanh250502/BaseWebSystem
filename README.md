@@ -32,7 +32,8 @@ src/
     ├── api-client/     # SDK gọi API (tự refresh token) cho frontend
     └── ui/             # antd: provider, i18n, auth, layout, trang tài khoản dùng chung
 docs/                   # tài liệu kiến trúc (xem bảng dưới)
-.claude/                # launch.json (chạy preview 3 app) + skill cho Claude Code
+.claude/                # launch.json (chạy preview 3 app) + skill cho Claude Code (xem dưới)
+CLAUDE.md               # hướng dẫn cho Claude Code: quy trình, chọn skill, bản đồ tính năng
 ```
 
 | Tài liệu | Nội dung |
@@ -42,6 +43,21 @@ docs/                   # tài liệu kiến trúc (xem bảng dưới)
 | [docs/permission-sync.md](docs/permission-sync.md) | Nút Đồng bộ quyền giữa code và DB |
 | [docs/settings.md](docs/settings.md) | Cài đặt hệ thống: khai báo, form sinh tự động, thêm cài đặt mới |
 | [docs/two-factor.md](docs/two-factor.md) | 2FA đa phương thức (passkey, TOTP, email), API, giới hạn, danh sách test |
+| [docs/TEST-CASES.md](docs/TEST-CASES.md) | Danh sách testcase tự động, cách chạy test |
+
+Skill cho Claude Code (`.claude/skills/`, bảng chọn skill đầy đủ ở [CLAUDE.md](CLAUDE.md)):
+
+| Skill | Dùng khi |
+|---|---|
+| `base-skill` | Mọi thay đổi code: techstack, code style, permission, setting, định nghĩa "hoàn thành" |
+| `feature-module` | Thêm module nghiệp vụ mới end-to-end (DB → API → SDK → trang admin → test) |
+| `db-schema` | Thêm/sửa bảng, cột, index, migration, seed, truy vấn Drizzle |
+| `frontend-page` | Trang, form, menu, route, i18n ở app admin/user hoặc `@base/ui` |
+| `auth-account` | Đăng nhập, phiên, đăng ký, Google, quên mật khẩu, xác minh email, 2FA, rate limit, trang tài khoản |
+| `notifications` | Thông báo hệ thống, gửi thông báo từ admin, chuông/trang thông báo |
+| `api-testing` | Viết/chạy test e2e API, unit test, cập nhật `docs/TEST-CASES.md` |
+| `security-audit` | Rà soát bảo mật |
+| `speckit-*` | Đặc tả → kế hoạch → task → triển khai cho tính năng lớn |
 
 Đổi logo: thay `src/frontends/<user|admin>/src/assets/logo.svg` (sidebar mở rộng) và `logo-mini.svg` (sidebar thu gọn).
 
