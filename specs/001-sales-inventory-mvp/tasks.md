@@ -293,12 +293,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 6.1 — Tạo đơn & chọn sản phẩm
 
-- [ ] T038 [US4] Tạo `SalesModule`: `POST /sales-orders` (idempotent theo `sales_orders.client_request_id` → 200 trả đơn cũ; sinh mã; snapshot `sku/name/unit`; `unitPrice` mặc định giá niêm yết, khác giá cần `sales.overridePrice` → 403 `sales.priceOverrideForbidden`), `PATCH` (chỉ DRAFT, version) trong `src/backends/api/src/sales/`; đăng ký `app.module.ts`; key lỗi `sales.*`
+- [x] T038 [US4] Tạo `SalesModule`: `POST /sales-orders` (idempotent theo `sales_orders.client_request_id` → 200 trả đơn cũ; sinh mã; snapshot `sku/name/unit`; `unitPrice` mặc định giá niêm yết, khác giá cần `sales.overridePrice` → 403 `sales.priceOverrideForbidden`), `PATCH` (chỉ DRAFT, version) trong `src/backends/api/src/sales/`; đăng ký `app.module.ts`; key lỗi `sales.*`
   - Deps: T020, T023, T034
   - Result: Theo `contracts/rest-api.md` § Bán hàng; `data-model.md` `sales_order_items.sku_snapshot`, `sales_order_items.list_price`, `sales_order_items.unit_price`.
   - AC: Đơn nháp không đổi tồn (US4 #4); sản phẩm INACTIVE → 422.
   - Test: `src/backends/api/test/sales.test.ts`: tạo nháp, gửi lại cùng `clientRequestId` không tạo đơn mới, sửa giá không quyền → 403.
-- [ ] T039 [US4] Tra cứu sản phẩm cho bán hàng: `GET /products?status=ACTIVE&search=` trả ảnh chính, giá bán, tồn — xác nhận Staff gọi được (quyền `products.list`) và không có giá vốn; tối ưu truy vấn (index/`pg_trgm` nếu SC-002 không đạt) trong `src/backends/api/src/products/products.service.ts`
+- [x] T039 [US4] Tra cứu sản phẩm cho bán hàng: `GET /products?status=ACTIVE&search=` trả ảnh chính, giá bán, tồn — xác nhận Staff gọi được (quyền `products.list`) và không có giá vốn; tối ưu truy vấn (index/`pg_trgm` nếu SC-002 không đạt) trong `src/backends/api/src/products/products.service.ts`
   - Deps: T024, T029
   - Result: US4 #7.
   - AC: Sản phẩm ngừng kinh doanh không trả về khi lọc ACTIVE.
@@ -306,12 +306,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 6.2 — Chốt đơn & xuất kho
 
-- [ ] T040 [US4] `POST /sales-orders/:id/confirm` và `POST /sales-orders` với `confirm: true` (một transaction): UPDATE có điều kiện, `InventoryService.apply` (SALE_OUT), ghi `unit_cost`, `cost_amount`, `allocated_order_discount`, `net_amount`, `total_cost`, bật `has_transactions`, `markPaid` → `PAID` + `paid_at/by` trong `src/backends/api/src/sales/sales.service.ts`
+- [x] T040 [US4] `POST /sales-orders/:id/confirm` và `POST /sales-orders` với `confirm: true` (một transaction): UPDATE có điều kiện, `InventoryService.apply` (SALE_OUT), ghi `unit_cost`, `cost_amount`, `allocated_order_discount`, `net_amount`, `total_cost`, bật `has_transactions`, `markPaid` → `PAID` + `paid_at/by` trong `src/backends/api/src/sales/sales.service.ts`
   - Deps: T021, T038
   - Result: US4 #1, #2, #5; `data-model.md` `sales_order_items.unit_cost`, `sales_order_items.net_amount`, `sales_orders.total_cost`, `sales_orders.payment_status`.
   - AC: Thiếu hàng → 409 `sales.insufficientStock` + details, không ghi gì; chốt lần 2 → 409.
   - Test: `sales.test.ts`: chốt trừ tồn đúng, giá vốn = avg lúc chốt, thiếu hàng có details, chốt trùng; Σ net_amount = total_amount.
-- [ ] T041 [US4] Bộ test đồng thời: 50 request chốt đồng thời trên tồn 10 → đúng 10 thành công (SC-003); nhập + bán xen kẽ; 2 đơn đảo thứ tự sản phẩm không deadlock trong `src/backends/api/test/inventory.concurrency.test.ts`
+- [x] T041 [US4] Bộ test đồng thời: 50 request chốt đồng thời trên tồn 10 → đúng 10 thành công (SC-003); nhập + bán xen kẽ; 2 đơn đảo thứ tự sản phẩm không deadlock trong `src/backends/api/test/inventory.concurrency.test.ts`
   - Deps: T036, T040
   - Result: Chứng minh constitution VII.
   - AC: Tồn cuối 0, không tồn âm, Σ movements = balance.
@@ -319,12 +319,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 6.3 — Thanh toán & huỷ
 
-- [ ] T042 [US4] `POST /sales-orders/:id/pay` (`UNPAID → PAID` một chiều, chỉ đơn CONFIRMED) trong `src/backends/api/src/sales/sales.service.ts`
+- [x] T042 [US4] `POST /sales-orders/:id/pay` (`UNPAID → PAID` một chiều, chỉ đơn CONFIRMED) trong `src/backends/api/src/sales/sales.service.ts`
   - Deps: T040
   - Result: US4 #9, #10 (spec Q2); `data-model.md` `sales_orders.paid_at`.
   - AC: Đơn nháp → 409 `sales.notConfirmed`; đã PAID → 409 `sales.alreadyPaid`.
   - Test: `sales.test.ts`.
-- [ ] T043 [US4] `POST /sales-orders/:id/cancel`: DRAFT (người tạo với `sales.update`) → CANCELLED không đổi tồn; CONFIRMED (cần `sales.cancel`) → `InventoryService.apply` (SALE_CANCEL_IN theo `unit_cost` dòng), ghi `cancelled_by/at` trong `src/backends/api/src/sales/sales.service.ts`, `sales.controller.ts`
+- [x] T043 [US4] `POST /sales-orders/:id/cancel`: DRAFT (người tạo với `sales.update`) → CANCELLED không đổi tồn; CONFIRMED (cần `sales.cancel`) → `InventoryService.apply` (SALE_CANCEL_IN theo `unit_cost` dòng), ghi `cancelled_by/at` trong `src/backends/api/src/sales/sales.service.ts`, `sales.controller.ts`
   - Deps: T040
   - Result: US4 #6; research R5 (khôi phục giá vốn).
   - AC: Huỷ lần 2 → 409; Staff huỷ đơn đã chốt → 403; sản phẩm đã ngừng kinh doanh vẫn cộng lại tồn.
@@ -332,7 +332,7 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 6.4 — Lịch sử & chi tiết (US5)
 
-- [ ] T044 [US5] `GET /sales-orders` (lọc ngày, trạng thái, thanh toán, phương thức, người tạo, `mine`; tìm mã/SĐT) và `GET /sales-orders/:id`; phạm vi theo `sales.viewAll`; ẩn giá vốn khi thiếu `products.viewCost` trong `src/backends/api/src/sales/sales.service.ts`, `sales.mapper.ts`
+- [x] T044 [US5] `GET /sales-orders` (lọc ngày, trạng thái, thanh toán, phương thức, người tạo, `mine`; tìm mã/SĐT) và `GET /sales-orders/:id`; phạm vi theo `sales.viewAll`; ẩn giá vốn khi thiếu `products.viewCost` trong `src/backends/api/src/sales/sales.service.ts`, `sales.mapper.ts`
   - Deps: T040
   - Result: US5 #1, #2.
   - AC: Staff chỉ thấy đơn mình tạo; đơn người khác → 404.

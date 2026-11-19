@@ -12,6 +12,7 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { ProductsModule } from './products/products.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { RolesModule } from './roles/roles.module';
+import { SalesModule } from './sales/sales.module';
 import { SettingsModule } from './settings/settings.module';
 import { StorageModule } from './storage/storage.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     ProductsModule,
     SuppliersModule,
     PurchasesModule,
+    SalesModule,
   ],
 })
 export class AppModule {}
