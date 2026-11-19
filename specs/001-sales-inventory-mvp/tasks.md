@@ -400,17 +400,17 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 9.1 — SDK & UI dùng chung
 
-- [ ] T053 Tạo SDK `createCategoriesApi`, `createProductsApi` (gồm `images.*` + `uploadImage(productId, file, opts)` 3 bước: request → POST multipart tới MinIO → complete), `createSuppliersApi`, `createPurchasesApi`, `createSalesOrdersApi`, `createInventoryApi`, `createReportsApi` trong `src/packages/api-client/src/endpoints/commerce.ts`; `salesSummary()` trong `src/packages/api-client/src/endpoints/admin.ts`; đăng ký ở `src/packages/api-client/src/index.ts`
+- [x] T053 Tạo SDK `createCategoriesApi`, `createProductsApi` (gồm `images.*` + `uploadImage(productId, file, opts)` 3 bước: request → POST multipart tới MinIO → complete), `createSuppliersApi`, `createPurchasesApi`, `createSalesOrdersApi`, `createInventoryApi`, `createReportsApi` trong `src/packages/api-client/src/endpoints/commerce.ts`; `salesSummary()` trong `src/packages/api-client/src/endpoints/admin.ts`; đăng ký ở `src/packages/api-client/src/index.ts`
   - Deps: T008–T010 (kiểu), Phase 2–8 (API)
   - Result: Mọi endpoint trong `contracts/rest-api.md` có hàm SDK.
   - AC: Upload tới MinIO không gửi header `Authorization`; lỗi MinIO ném `ApiClientError` có key `productImages.uploadFailed`.
   - Test: Typecheck 2 app.
-- [ ] T054 [P] Tạo component/hàm dùng chung `Money`, `formatMoney`, `formatQuantity`, `DocumentStatusTag`, `PaymentStatusTag`, `StockStateTag`, `ProductThumb` (tự refetch khi URL hết hạn), `SalesOrderTable`, `SalesOrderDetail`, `useProductSearch` trong `src/packages/ui/src/commerce/`, export ở `src/packages/ui/src/index.ts`
+- [x] T054 [P] Tạo component/hàm dùng chung `Money`, `formatMoney`, `formatQuantity`, `DocumentStatusTag`, `PaymentStatusTag`, `StockStateTag`, `ProductThumb` (tự refetch khi URL hết hạn), `SalesOrderTable`, `SalesOrderDetail`, `useProductSearch` trong `src/packages/ui/src/commerce/`, export ở `src/packages/ui/src/index.ts`
   - Deps: T053
   - Result: Dùng chung admin + user (plan § Frontend).
   - AC: Không hard-code chuỗi/màu; tiền qua `Intl.NumberFormat` VND.
   - Test: Lint + typecheck.
-- [ ] T055 [P] Hàm hiển thị lỗi theo dòng: đọc `error.details` của `sales.insufficientStock` / `inventory.negativeStock` / validate dòng → map theo `productId`/index; xử lý `*.stale` (hỏi tải lại) trong `src/packages/ui/src/commerce/documentErrors.ts`
+- [x] T055 [P] Hàm hiển thị lỗi theo dòng: đọc `error.details` của `sales.insufficientStock` / `inventory.negativeStock` / validate dòng → map theo `productId`/index; xử lý `*.stale` (hỏi tải lại) trong `src/packages/ui/src/commerce/documentErrors.ts`
   - Deps: T003, T053
   - Result: Dùng ở form nhập, bán, điều chỉnh.
   - AC: Lỗi khác rơi về `useNotifyError`.
@@ -418,17 +418,17 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 9.2 — Admin: hàng hoá (US1, US2)
 
-- [ ] T056 [US1] Trang Danh mục (`CategoriesPage`, `CategoryFormModal`) trong `src/frontends/admin/src/features/categories/`; route `/categories` + menu nhóm "Hàng hoá" trong `src/frontends/admin/src/app/router.tsx`, `src/frontends/admin/src/app/AdminLayout.tsx`
+- [x] T056 [US1] Trang Danh mục (`CategoriesPage`, `CategoryFormModal`) trong `src/frontends/admin/src/features/categories/`; route `/categories` + menu nhóm "Hàng hoá" trong `src/frontends/admin/src/app/router.tsx`, `src/frontends/admin/src/app/AdminLayout.tsx`
   - Deps: T053, T054
   - Result: Khung `b-page` + `PageHeader` + `Table` (skill `frontend-page`).
   - AC: Nút theo `can('categories.*')`; trạng thái rỗng có hành động gợi ý.
   - Test: Lint + typecheck; quickstart bước 2.
-- [ ] T057 [US1] Trang Sản phẩm (`ProductsPage` tìm/lọc/sắp xếp/phân trang, `ProductFormModal` validate theo `createProductSchema`, drawer chi tiết) trong `src/frontends/admin/src/features/products/`; route `/products` + menu
+- [x] T057 [US1] Trang Sản phẩm (`ProductsPage` tìm/lọc/sắp xếp/phân trang, `ProductFormModal` validate theo `createProductSchema`, drawer chi tiết) trong `src/frontends/admin/src/features/products/`; route `/products` + menu
   - Deps: T056
   - Result: US1 trên giao diện; cột giá vốn chỉ khi `can('products.viewCost')`.
   - AC: Không có ô sửa tồn kho; ngừng/kinh doanh lại bằng toggle trạng thái.
   - Test: Lint + typecheck; quickstart bước 2.
-- [ ] T058 [US2] `ProductImagesManager` (upload nhiều file, kiểm tra loại/≤ 5 MB trước khi gửi, tiến trình, đặt ảnh chính, kéo thả sắp xếp, thay, xoá, xem trước `Image.PreviewGroup`) trong `src/frontends/admin/src/features/products/ProductImagesManager.tsx`, gắn vào drawer sản phẩm
+- [x] T058 [US2] `ProductImagesManager` (upload nhiều file, kiểm tra loại/≤ 5 MB trước khi gửi, tiến trình, đặt ảnh chính, kéo thả sắp xếp, thay, xoá, xem trước `Image.PreviewGroup`) trong `src/frontends/admin/src/features/products/ProductImagesManager.tsx`, gắn vào drawer sản phẩm
   - Deps: T057
   - Result: US2 trên giao diện.
   - AC: Lỗi từ MinIO/complete hiển thị đúng thông điệp.
@@ -436,22 +436,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 9.3 — Admin: mua hàng, kho, đơn bán (US3, US5, US6)
 
-- [ ] T059 [US3] Trang Nhà cung cấp (danh sách, form, chi tiết có `purchaseSummary` + bảng phiếu nhập) trong `src/frontends/admin/src/features/suppliers/`; route `/suppliers` + menu nhóm "Mua hàng"
+- [x] T059 [US3] Trang Nhà cung cấp (danh sách, form, chi tiết có `purchaseSummary` + bảng phiếu nhập) trong `src/frontends/admin/src/features/suppliers/`; route `/suppliers` + menu nhóm "Mua hàng"
   - Deps: T053, T054
   - Result: FR-011, FR-012.
   - AC: Ẩn nút theo quyền.
   - Test: Lint + typecheck.
-- [ ] T060 [US3] Phiếu nhập: danh sách (lọc), form tạo/sửa (bảng dòng chọn sản phẩm, SL, giá, chiết khấu; tổng xem trước), chi tiết (Xác nhận / Huỷ, gửi `version`) trong `src/frontends/admin/src/features/purchases/`; route `/purchases`, `/purchases/new`, `/purchases/:id`
+- [x] T060 [US3] Phiếu nhập: danh sách (lọc), form tạo/sửa (bảng dòng chọn sản phẩm, SL, giá, chiết khấu; tổng xem trước), chi tiết (Xác nhận / Huỷ, gửi `version`) trong `src/frontends/admin/src/features/purchases/`; route `/purchases`, `/purchases/new`, `/purchases/:id`
   - Deps: T055, T059
   - Result: US3 trên giao diện; tổng cuối lấy từ response.
   - AC: Phiếu CONFIRMED chỉ đọc, không có nút huỷ; lỗi dòng hiển thị đúng dòng.
   - Test: Lint + typecheck; quickstart bước 4–5.
-- [ ] T061 [US6] Trang Tồn kho (bảng + thẻ tổng + lọc trạng thái tồn), Sổ biến động, Điều chỉnh (danh sách + form nhiều dòng, chế độ chênh lệch / số đếm thực tế, `clientRequestId` sinh 1 lần/form) trong `src/frontends/admin/src/features/inventory/`; route `/inventory`, `/inventory/movements`, `/inventory/adjustments`, `/inventory/adjustments/new` + menu nhóm "Kho"
+- [x] T061 [US6] Trang Tồn kho (bảng + thẻ tổng + lọc trạng thái tồn), Sổ biến động, Điều chỉnh (danh sách + form nhiều dòng, chế độ chênh lệch / số đếm thực tế, `clientRequestId` sinh 1 lần/form) trong `src/frontends/admin/src/features/inventory/`; route `/inventory`, `/inventory/movements`, `/inventory/adjustments`, `/inventory/adjustments/new` + menu nhóm "Kho"
   - Deps: T055
   - Result: US6 trên giao diện.
   - AC: Giá trị tồn chỉ khi `can('inventory.viewValue')`.
   - Test: Lint + typecheck; quickstart bước 11.
-- [ ] T062 [US5] Trang Đơn bán (dùng `SalesOrderTable`/`SalesOrderDetail`; hành động Thanh toán, Huỷ) trong `src/frontends/admin/src/features/sales-orders/`; route `/sales-orders`, `/sales-orders/:id` + menu nhóm "Bán hàng"
+- [x] T062 [US5] Trang Đơn bán (dùng `SalesOrderTable`/`SalesOrderDetail`; hành động Thanh toán, Huỷ) trong `src/frontends/admin/src/features/sales-orders/`; route `/sales-orders`, `/sales-orders/:id` + menu nhóm "Bán hàng"
   - Deps: T054
   - Result: Quản lý xem/huỷ/thanh toán đơn.
   - AC: Nút theo `sales.pay`, `sales.cancel`.
@@ -459,12 +459,12 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 9.4 — Admin: dashboard & báo cáo (US7)
 
-- [ ] T063 [US7] Khối bán hàng trên Dashboard (thẻ số liệu, danh sách sắp hết/hết hàng) khi `can('dashboard.salesSummary')`, giữ biểu đồ người dùng trong `src/frontends/admin/src/pages/DashboardPage.tsx`
+- [x] T063 [US7] Khối bán hàng trên Dashboard (thẻ số liệu, danh sách sắp hết/hết hàng) khi `can('dashboard.salesSummary')`, giữ biểu đồ người dùng trong `src/frontends/admin/src/pages/DashboardPage.tsx`
   - Deps: T053, T054
   - Result: FR-030 trên giao diện.
   - AC: Không đổi hành vi dashboard cho người không có quyền mới.
   - Test: Lint + typecheck.
-- [ ] T064 [US7] Trang Báo cáo (tabs: Doanh thu ngày/tháng có biểu đồ recharts, Theo sản phẩm/bán chạy, Lợi nhuận tách Doanh thu – Giá vốn – Lợi nhuận, Nhập hàng, Tồn kho, Biến động; bộ lọc ngày/sản phẩm/danh mục/nhà cung cấp) trong `src/frontends/admin/src/features/reports/`; route `/reports` + menu nhóm "Báo cáo"
+- [x] T064 [US7] Trang Báo cáo (tabs: Doanh thu ngày/tháng có biểu đồ recharts, Theo sản phẩm/bán chạy, Lợi nhuận tách Doanh thu – Giá vốn – Lợi nhuận, Nhập hàng, Tồn kho, Biến động; bộ lọc ngày/sản phẩm/danh mục/nhà cung cấp) trong `src/frontends/admin/src/features/reports/`; route `/reports` + menu nhóm "Báo cáo"
   - Deps: T063
   - Result: FR-031, FR-032.
   - AC: Mỗi tab ẩn theo quyền `reports.*`; khoảng ngày > 366 bị chặn ở form.

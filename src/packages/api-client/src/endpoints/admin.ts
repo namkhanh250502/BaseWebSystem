@@ -9,6 +9,7 @@ import type {
   PermissionSyncResult,
   PublicSettings,
   RoleDto,
+  SalesSummaryDto,
   SendNotificationInput,
   SettingGroupDto,
   SettingsExportFile,
@@ -71,5 +72,7 @@ export function createDashboardApi(http: HttpClient) {
   return {
     userGrowth: async (year?: number) =>
       (await http.get<UserGrowthDto>('/dashboard/user-growth', { query: { year } })).data,
+    /** Tổng quan bán hàng & tồn kho (quyền dashboard.salesSummary) */
+    salesSummary: async () => (await http.get<SalesSummaryDto>('/dashboard/sales-summary')).data,
   };
 }

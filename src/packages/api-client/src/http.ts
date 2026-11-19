@@ -14,14 +14,19 @@ export class ApiClientError extends Error {
     /** Key i18n của lỗi phía server, ví dụ 'twoFactor.tokenInvalid' */
     public readonly key?: string,
     public readonly details?: unknown,
+    /** Tham số của thông báo (vd. `{ sku, available }`) */
+    public readonly params?: Record<string, string | number>,
   ) {
     super(message);
     this.name = 'ApiClientError';
   }
 
-  /** true khi lỗi do không kết nối được backend, không phải lỗi nghiệp vụ */
+  /**
+   * true khi lỗi do không kết nối được backend, không phải lỗi nghiệp vụ. Lỗi 503 có key
+   * (vd. `storage.unavailable`) là lỗi nghiệp vụ có thông điệp riêng, không tính là mất kết nối.
+   */
   get isConnectivity(): boolean {
-    return (CONNECTIVITY_ERROR_CODES as readonly string[]).includes(this.code);
+    return (CONNECTIVITY_ERROR_CODES as readonly string[]).includes(this.code) && !this.key;
   }
 }
 
@@ -149,6 +154,7 @@ export function createHttpClient(options: HttpClientOptions) {
         error?.message ?? `HTTP ${res.status}`,
         error?.key,
         error?.details,
+        error?.params,
       );
     }
     return { data: json.data as T, meta: json.meta };

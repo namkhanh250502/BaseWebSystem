@@ -5,6 +5,7 @@
   --b-border: #ececef;
   --b-hairline: #ececef;
   --b-muted: #75787e;
+  --b-danger-bg: #fff2f0;
   --b-text: #32353f;
   --b-heading: #121421;
   --b-primary: #3d97ff;
@@ -1181,4 +1182,73 @@ body {
   border: 1px solid var(--b-hairline);
   border-radius: 10px;
   overflow: hidden;
+}
+
+/* ----- Bán hàng & tồn kho ----- */
+.b-product-thumb {
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--b-bg);
+}
+.b-product-thumb--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--b-hairline);
+  color: var(--b-muted);
+}
+.b-line-error td {
+  background: var(--b-danger-bg) !important;
+}
+.b-image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.b-image-grid__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--b-hairline);
+  border-radius: 8px;
+}
+.b-image-grid__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--b-primary);
+  color: #fff;
+  font-size: 11px;
+}
+.b-pos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 991px) {
+  .b-pos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.b-pos__products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.b-pos__product {
+  cursor: pointer;
+}
+.b-pos__product .ant-card-body {
+  padding: 10px;
+}
+.b-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }

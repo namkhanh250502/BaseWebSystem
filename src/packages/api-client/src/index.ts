@@ -6,6 +6,15 @@ import {
   createSettingsApi,
 } from './endpoints/admin';
 import { createAuthApi } from './endpoints/auth';
+import {
+  createCategoriesApi,
+  createInventoryApi,
+  createProductsApi,
+  createPurchasesApi,
+  createReportsApi,
+  createSalesOrdersApi,
+  createSuppliersApi,
+} from './endpoints/commerce';
 import { createMeApi } from './endpoints/me';
 import { createUsersApi } from './endpoints/users';
 import { createHttpClient, type HttpClientOptions } from './http';
@@ -26,6 +35,13 @@ export function createApi(options: HttpClientOptions) {
     settings: createSettingsApi(http),
     notifications: createNotificationsAdminApi(http),
     dashboard: createDashboardApi(http),
+    categories: createCategoriesApi(http),
+    products: createProductsApi(http),
+    suppliers: createSuppliersApi(http),
+    purchases: createPurchasesApi(http),
+    salesOrders: createSalesOrdersApi(http),
+    inventory: createInventoryApi(http),
+    reports: createReportsApi(http),
   };
 }
 

@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { SalesSummarySection } from '@/features/reports/SalesSummarySection';
 
 /** Màu theo bảng màu biểu đồ của hệ thống gốc */
 const USERS_COLOR = '#ec4899';
@@ -37,7 +38,10 @@ function UserGrowthCard() {
   return (
     <Card variant="borderless" className="dash-chart-card">
       <div className="dash-chart-card__head">
-        <div className="dash-chart-card__icon" style={{ background: `${USERS_COLOR}1a`, color: USERS_COLOR }}>
+        <div
+          className="dash-chart-card__icon"
+          style={{ background: `${USERS_COLOR}1a`, color: USERS_COLOR }}
+        >
           <TeamOutlined />
         </div>
         <div className="dash-chart-card__titles">
@@ -99,7 +103,11 @@ export function DashboardPage() {
 
   return (
     <div className="b-page">
-      <PageHeader title={t('welcome', { name: user ? displayName(user) : '' })} subtitle={t('subtitle')} />
+      <PageHeader
+        title={t('welcome', { name: user ? displayName(user) : '' })}
+        subtitle={t('subtitle')}
+      />
+      {can('dashboard.salesSummary') && <SalesSummarySection />}
       {can('dashboard.userGrowth') && (
         <Row gutter={[16, 16]}>
           <Col xs={24} xl={12}>

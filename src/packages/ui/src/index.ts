@@ -40,6 +40,9 @@ export {
   useUnreadCount,
 } from './notifications/useNotifications';
 
+// Bán hàng & tồn kho (dùng chung admin + app bán hàng)
+export * from './commerce';
+
 // Hooks & utils
 export * from './hooks';
 export * from './utils';
