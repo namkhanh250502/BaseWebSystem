@@ -1,4 +1,5 @@
 export * from './crypto';
+export * from './decimal';
 export * from './errors';
 export * from './geo';
 export * from './i18n';

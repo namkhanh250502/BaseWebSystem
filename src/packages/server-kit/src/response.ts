@@ -37,6 +37,8 @@ export function errorBody(
           code: error.code,
           key: error.key,
           message: t(locale, error.key, error.params),
+          // Tham số có cấu trúc để frontend tự dựng thông điệp / gắn lỗi đúng chỗ (FR-038)
+          ...(error.params !== undefined ? { params: error.params } : {}),
           ...(details !== undefined ? { details } : {}),
         },
       },

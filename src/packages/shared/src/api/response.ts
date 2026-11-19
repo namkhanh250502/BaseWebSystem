@@ -6,6 +6,8 @@ export interface ApiError {
   key?: string;
   /** Thông báo đã được dịch theo Accept-Language */
   message: string;
+  /** Tham số của thông báo (vd. `{ sku, available }`), dùng khi FE tự dựng thông điệp theo `key` */
+  params?: Record<string, string | number>;
   details?: unknown;
 }
 

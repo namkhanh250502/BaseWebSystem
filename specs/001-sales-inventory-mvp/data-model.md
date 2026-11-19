@@ -268,7 +268,7 @@ stateDiagram-v2
 
 - `line_amount = round2(quantity × unit_price) − discount_amount` (≥ 0).
 - `subtotal = Σ line_amount`; `total = subtotal − discount_amount` (≥ 0).
-- Phân bổ chiết khấu chứng từ theo tỷ lệ `line_amount`, dòng cuối nhận phần dư.
+- Phân bổ chiết khấu chứng từ theo tỷ lệ `line_amount`: mỗi dòng làm tròn xuống, phần dư dồn vào dòng cuối có `line_amount` > 0 (tổng luôn khớp, không dòng nào âm).
 - Giá trị tồn = Σ `quantity × avg_cost`.
 - Lợi nhuận gộp = Σ `net_amount` − Σ `cost_amount` của dòng thuộc đơn `CONFIRMED` (theo `confirmed_at`).
 - Trạng thái tồn: `OUT` nếu quantity = 0; `LOW` nếu 0 < quantity ≤ min_stock; ngược lại `IN_STOCK`.

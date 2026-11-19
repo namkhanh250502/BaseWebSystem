@@ -62,7 +62,7 @@ Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Các k�
   - Chốt bán: mỗi dòng lưu `unit_cost = avg_cost` tại thời điểm khoá; `avg_cost` không đổi.
   - Huỷ đơn bán: cộng lại số lượng với giá vốn đã lưu trên dòng → `avg = (q × avg + r × unit_cost_line) ÷ (q + r)`.
   - Điều chỉnh tăng (kiểm kê thừa, khác): nhập lại theo `avg_cost` hiện tại (avg không đổi). Điều chỉnh giảm: avg không đổi. Sản phẩm chưa từng nhập (`avg = 0`) điều chỉnh tăng ghi giá vốn 0 và cảnh báo trên giao diện.
-  - Phân bổ chiết khấu đơn bán vào từng dòng theo tỷ lệ thành tiền (dòng cuối nhận phần dư làm tròn) → lưu `net_amount` mỗi dòng để báo cáo theo sản phẩm cộng đúng tổng đơn.
+  - Phân bổ chiết khấu đơn bán vào từng dòng theo tỷ lệ thành tiền (mỗi dòng làm tròn xuống, phần dư dồn vào dòng cuối có thành tiền > 0 — tổng luôn khớp, không dòng nào âm; `allocate` trong `decimal.ts`) → lưu `net_amount` mỗi dòng để báo cáo theo sản phẩm cộng đúng tổng đơn.
 - **Rationale**: Đúng spec (bình quân gia quyền, báo cáo dùng giá vốn lịch sử, huỷ đơn khôi phục nhất quán).
 - **Alternatives**: FIFO theo lô — ngoài phạm vi MVP; tính lại toàn bộ lịch sử khi huỷ — tốn kém, thay đổi số liệu quá khứ.
 
@@ -135,3 +135,21 @@ Mỗi mục: **Decision** / **Rationale** / **Alternatives considered**. Các k�
 - **Decision**: Không thêm Docker (repo không dùng). MinIO cài bản binary + systemd trên server (hoặc dịch vụ S3-compatible bất kỳ), bucket private `products`, domain riêng `files.example.com` sau Cloudflare → nginx → MinIO (giữ nguyên `Host` để chữ ký presigned hợp lệ), CORS chỉ cho `USER_APP_URL`/`ADMIN_APP_URL`. Biến môi trường mới ở `src/backends/api/.env`: `MINIO_ENDPOINT`, `MINIO_PUBLIC_URL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET`, `MINIO_REGION`, `PRODUCT_IMAGE_MAX_BYTES` (5 MB), `API_DOCS_ENABLED`. Dev: MinIO chạy local `localhost:9000`.
 - **Rationale**: Constitution VI (credential chỉ ở backend env), I (không đổi cách triển khai). Không proxy MinIO dưới đường dẫn con của domain app vì nginx đổi path sẽ làm sai chữ ký.
 - **Alternatives**: Proxy ảnh qua API (stream) — tốn tài nguyên API, mất lợi ích presigned.
+
+## Xác minh điểm tích hợp (T001 — 2026-11-19)
+
+Đã đọc lại mã nguồn trên nhánh `001-sales-inventory-mvp`; không có điểm nào lệch với plan. Ghi chú cho các task sau:
+
+| Điểm tích hợp | Vị trí | Ghi chú |
+| --- | --- | --- |
+| `CoreModule` @Global (DB, RateLimit) | `src/backends/api/src/core/core.module.ts` | `StorageModule` (T026) làm @Global tương tự |
+| `configureApp` (prefix `api`, version URI `v1`, filter, interceptor) | `src/backends/api/src/app.setup.ts` | Swagger (T006) gắn tại đây; dùng chung cho `main.ts` và test e2e |
+| `errorBody` | `src/packages/server-kit/src/response.ts` | `AppError` đã có `params` nhưng body chưa trả → T003 |
+| `ApiError` | `src/packages/shared/src/api/response.ts` | Thiếu `params` → T003 |
+| `getEnv()` (zod, cache, trường suy ra `uploadDir`, `cookieSecure`) | `src/backends/api/src/config/env.ts` | Biến mới (T004) theo cùng mẫu, thêm trường suy ra |
+| `createApi` | `src/packages/api-client/src/index.ts` | Đăng ký SDK commerce (T053) |
+| `createI18n(appResources, storageKey)` | `src/packages/ui/src/i18n/createI18n.ts` | Namespace mới chỉ cần thêm key cấp 1 |
+| `createTestApp` + `overrideProvider` | `src/backends/api/test/helpers/app.ts` | Thêm `FakeStorageService` (T027) cùng cách với `FakeMailService` |
+| Tiện ích thập phân | — | Chưa có; chỉ có `Intl.NumberFormat` hiển thị số ở admin → `decimal.ts` (T002) không trùng |
+
+Mốc test trước khi triển khai: `@base/server-kit` 23 pass; `@base/api` 118 pass, 4 skip (bộ Redis thật, thiếu `TEST_REDIS_URL`).

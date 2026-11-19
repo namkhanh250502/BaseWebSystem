@@ -35,22 +35,22 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
 
 ### Batch 1.1 — Xác minh điểm tích hợp & tiện ích nền
 
-- [ ] T001 Xác minh lại điểm tích hợp ghi trong `research.md` §0 (module, `CoreModule` @Global, `createApi`, `createI18n`, `errorBody`, `createTestApp`) và ghi lệch (nếu có) vào cuối `specs/001-sales-inventory-mvp/research.md`
+- [x] T001 Xác minh lại điểm tích hợp ghi trong `research.md` §0 (module, `CoreModule` @Global, `createApi`, `createI18n`, `errorBody`, `createTestApp`) và ghi lệch (nếu có) vào cuối `specs/001-sales-inventory-mvp/research.md`
   - Deps: —
   - Result: Danh sách điểm tích hợp đã xác nhận với đường dẫn thật.
   - AC: Mọi đường dẫn nêu trong plan.md § Project Structure tồn tại (hoặc được đánh dấu "tạo mới"); không sửa mã nguồn.
   - Test: Không (tài liệu).
-- [ ] T002 [P] Tạo helper thập phân BigInt scale cố định (`parse`, `toString`, `add`, `sub`, `mul`, `div` half-up, `cmp`, `isInteger`, `allocate` phân bổ theo tỷ lệ, dòng cuối nhận dư) trong `src/packages/server-kit/src/decimal.ts`, export ở `src/packages/server-kit/src/index.ts`
+- [x] T002 [P] Tạo helper thập phân BigInt scale cố định (`parse`, `toString`, `add`, `sub`, `mul`, `div` half-up, `cmp`, `isInteger`, `allocate` phân bổ theo tỷ lệ, phần dư vào dòng cuối có trọng số > 0) trong `src/packages/server-kit/src/decimal.ts`, export ở `src/packages/server-kit/src/index.ts`
   - Deps: —
   - Result: Hàm thuần, không dependency mới (research R3).
   - AC: Không dùng `number` cho phép tính tiền; chuỗi đầu vào sai định dạng ném lỗi rõ ràng.
   - Test: Unit `src/packages/server-kit/test/decimal.test.ts`: làm tròn half-up 2/4 chữ số, chia hết/không hết, `allocate` tổng đúng bằng tổng gốc, số âm, số rất lớn (18 chữ số).
-- [ ] T003 [P] Thêm `params` vào body lỗi (`error.params` khi `AppError.params` có giá trị) trong `src/packages/server-kit/src/response.ts`; cập nhật kiểu lỗi API trong `src/packages/shared/src/api/response.ts`
+- [x] T003 [P] Thêm `params` vào body lỗi (`error.params` khi `AppError.params` có giá trị) trong `src/packages/server-kit/src/response.ts`; cập nhật kiểu lỗi API trong `src/packages/shared/src/api/response.ts`
   - Deps: —
   - Result: `{ code, key, message, params?, details? }` (research R8).
   - AC: Response lỗi cũ không đổi khi không có params; FE hiện có vẫn typecheck.
   - Test: Bổ sung case vào `src/packages/server-kit/test/security.test.ts` hoặc file mới `src/packages/server-kit/test/response.test.ts`: có/không params.
-- [ ] T004 [P] Thêm biến môi trường `MINIO_ENDPOINT`, `MINIO_PUBLIC_URL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET` (mặc định `products`), `MINIO_REGION` (mặc định `us-east-1`), `PRODUCT_IMAGE_MAX_BYTES` (mặc định 5242880), `API_DOCS_ENABLED` (mặc định true ngoài production) vào `src/backends/api/src/config/env.ts` và `src/backends/api/.env.example` (có chú thích tiếng Việt)
+- [x] T004 [P] Thêm biến môi trường `MINIO_ENDPOINT`, `MINIO_PUBLIC_URL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET` (mặc định `products`), `MINIO_REGION` (mặc định `us-east-1`), `PRODUCT_IMAGE_MAX_BYTES` (mặc định 5242880), `API_DOCS_ENABLED` (mặc định true ngoài production) vào `src/backends/api/src/config/env.ts` và `src/backends/api/.env.example` (có chú thích tiếng Việt)
   - Deps: —
   - Result: Biến MinIO tuỳ chọn; thiếu → chức năng ảnh tắt, API vẫn khởi động (plan § Triển khai).
   - AC: `getEnv()` không lỗi khi thiếu MinIO; secret không được log.
@@ -263,7 +263,7 @@ description: "Backlog triển khai 001 — Quản lý bán hàng & tồn kho (MV
   - Deps: T002
   - Result: Quy tắc `data-model.md` § Quy tắc tính toán.
   - AC: Không dùng `number`; lỗi `documents.discountExceedsAmount` (thêm key i18n).
-  - Test: Unit `src/backends/api/test/commerce.unit.test.ts`: phân bổ dư dòng cuối, chiết khấu = thành tiền (0 hợp lệ), vượt → lỗi.
+  - Test: Unit `src/backends/api/test/commerce.unit.test.ts`: phân bổ dư vào dòng cuối có thành tiền > 0, chiết khấu = thành tiền (0 hợp lệ), vượt → lỗi.
 - [ ] T035 [US3] Tạo `PurchasesModule`: `POST /purchases` (sinh mã, kiểm tra nhà cung cấp/sản phẩm ACTIVE, số lượng lẻ theo `products.allow_decimal_quantity`), `PATCH` (chỉ DRAFT, khoá lạc quan `purchase_receipts.version`, ghi lại toàn bộ dòng), `GET` list/detail (lọc `supplierId`, `status`, ngày, `productId`) trong `src/backends/api/src/purchases/`; đăng ký `app.module.ts`; key lỗi `purchases.*`
   - Deps: T020, T023, T032, T034
   - Result: Theo `contracts/rest-api.md` § Nhập hàng; ràng buộc `data-model.md` `purchase_receipt_items.quantity`, `purchase_receipt_items.unit_price`, `purchase_receipt_items.discount_amount`.

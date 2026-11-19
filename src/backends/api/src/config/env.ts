@@ -64,16 +64,91 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .optional()
     .transform((v) => (v === undefined ? undefined : v === 'true')),
+  /**
+   * MinIO / S3 lưu ảnh sản phẩm. Đặt đủ cả MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY
+   * hoặc bỏ trống cả ba (khi đó chức năng ảnh sản phẩm tắt, các chức năng khác vẫn chạy).
+   * Endpoint nội bộ: API gọi vào để kiểm tra / xoá object.
+   */
+  MINIO_ENDPOINT: optionalString(z.url()),
+  /** Địa chỉ trình duyệt truy cập MinIO, dùng để ký URL tải lên / xem ảnh. Mặc định = MINIO_ENDPOINT. */
+  MINIO_PUBLIC_URL: optionalString(z.url()),
+  MINIO_ACCESS_KEY: optionalString(z.string()),
+  MINIO_SECRET_KEY: optionalString(z.string()),
+  /** Bucket private chứa ảnh sản phẩm */
+  MINIO_BUCKET: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/, 'MINIO_BUCKET không phải tên bucket S3 hợp lệ')
+    .default('products'),
+  /** Region dùng khi ký URL (MinIO mặc định us-east-1); đặt sẵn để không phải hỏi server */
+  MINIO_REGION: z.string().min(1).default('us-east-1'),
+  /** Dung lượng tối đa mỗi ảnh sản phẩm (byte). Mặc định 5 MB. */
+  PRODUCT_IMAGE_MAX_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(50 * 1024 * 1024)
+    .default(5 * 1024 * 1024),
+  /** Bật tài liệu API (Swagger) tại /api/docs. Mặc định: bật trừ khi NODE_ENV=production. */
+  API_DOCS_ENABLED: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === 'true')),
 });
 
-export type Env = z.infer<typeof envSchema> & { uploadDir: string; cookieSecure: boolean };
+/** Biến tuỳ chọn: chuỗi rỗng (`KEY=` trong file .env) coi như không đặt */
+function optionalString<S extends z.ZodType<string>>(schema: S) {
+  return z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
+}
+
+const MINIO_REQUIRED = ['MINIO_ENDPOINT', 'MINIO_ACCESS_KEY', 'MINIO_SECRET_KEY'] as const;
+
+const validatedEnvSchema = envSchema.superRefine((env, ctx) => {
+  const missing = MINIO_REQUIRED.filter((key) => !env[key]);
+  if (missing.length > 0 && missing.length < MINIO_REQUIRED.length) {
+    ctx.addIssue({
+      code: 'custom',
+      path: [missing[0]!],
+      message: `Cấu hình MinIO chưa đủ: thiếu ${missing.join(', ')} (đặt đủ cả ba hoặc bỏ trống cả ba)`,
+    });
+  }
+});
+
+/** Cấu hình kết nối MinIO đã kiểm tra; `null` = chưa cấu hình (tắt chức năng ảnh sản phẩm) */
+export interface MinioConfig {
+  endpoint: string;
+  publicUrl: string;
+  accessKey: string;
+  secretKey: string;
+  bucket: string;
+  region: string;
+}
+
+export type Env = z.infer<typeof envSchema> & {
+  uploadDir: string;
+  cookieSecure: boolean;
+  apiDocsEnabled: boolean;
+  minio: MinioConfig | null;
+};
+
+function toMinioConfig(env: z.infer<typeof envSchema>): MinioConfig | null {
+  const { MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY } = env;
+  if (!MINIO_ENDPOINT || !MINIO_ACCESS_KEY || !MINIO_SECRET_KEY) return null;
+  return {
+    endpoint: MINIO_ENDPOINT,
+    publicUrl: env.MINIO_PUBLIC_URL ?? MINIO_ENDPOINT,
+    accessKey: MINIO_ACCESS_KEY,
+    secretKey: MINIO_SECRET_KEY,
+    bucket: env.MINIO_BUCKET,
+    region: env.MINIO_REGION,
+  };
+}
 
 let cached: Env | undefined;
 
 /** Đọc + kiểm tra biến môi trường (1 lần, lazy). Sai cấu hình thì dừng khởi động với thông báo rõ ràng. */
 export function getEnv(): Env {
   if (!cached) {
-    const result = envSchema.safeParse(process.env);
+    const result = validatedEnvSchema.safeParse(process.env);
     if (!result.success) {
       const issues = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`);
       throw new Error(`Biến môi trường không hợp lệ:\n${issues.join('\n')}`);
@@ -82,6 +157,8 @@ export function getEnv(): Env {
       ...result.data,
       uploadDir: path.resolve(process.cwd(), result.data.UPLOAD_DIR),
       cookieSecure: result.data.COOKIE_SECURE ?? result.data.NODE_ENV === 'production',
+      apiDocsEnabled: result.data.API_DOCS_ENABLED ?? result.data.NODE_ENV !== 'production',
+      minio: toMinioConfig(result.data),
     };
   }
   return cached;
